@@ -1,7 +1,8 @@
 import React, { useState } from 'react'
 import { useAuthStore } from '../store/useAuthStore';
-import { Eye, EyeOff, Loader, Loader2, Lock, Mail, MessageSquare , User} from 'lucide-react';
+import { Eye, EyeOff, Loader2, Lock, Mail, MessageSquare , User} from 'lucide-react';
 import { Link } from 'react-router-dom';
+import AuthImagePattern from '../components/AuthImagePattern';
 
 const SignUpPage = () => {
   const [showPassword,setShowPassword] = useState(false);
@@ -21,7 +22,7 @@ const SignUpPage = () => {
   return (
     <div className='min-h-screen grid lg:grid-cols-2'>
        {/* left side  */}
-       <div className='flex flex-col justify-center items-center p-6 sm:p-12'>
+       <div className='flex flex-col justify-center items-center p-6 sm:p-6'>
         <div className='w-full max-w-md space-y-8'>
           {/* form */}
           <div className='text-center mb-8'>
@@ -126,6 +127,12 @@ const SignUpPage = () => {
           </div>
         </div>
       </div>
+
+      {/* <AuthImagePattern 
+        // title='Making Airline Cargo much easier'
+        // subtitle='Our services are available 24/7 with accurate flight data'
+      /> */}
+
     </div>
   );
 };
