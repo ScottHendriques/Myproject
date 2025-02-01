@@ -5,9 +5,12 @@ import cors from "cors";
 
 import {connectDB} from "./lib/db.js";
 import authRoutes from "./routes/auth.route.js";
-import messageRoutes from "./routes/message.route.js"
+import messageRoutes from "./routes/message.route.js";
+import aviationRoutes from "./routes/aviation.routes.js"
 
 dotenv.config()
+const API_KEY = process.env.AVIATIONSTACK_API_KEYl;
+
 const app = express(); 
 
 const PORT = process.env.PORT
@@ -21,6 +24,8 @@ app.use(cors({
 
 app.use("/api/auth", authRoutes)
 app.use("/api/message", messageRoutes)
+
+app.use("/api/aviation",aviationRoutes)
 
 app.listen(PORT, ()=>{
     console.log("server is running on PORT:" + PORT);
