@@ -1,5 +1,6 @@
 import express from ' express'
 import axios from 'axios'
+import { assignFlight, trackFlight } from '../controllers/flight.controller';
 
 const router = express.Router();
 
@@ -21,5 +22,8 @@ router.get("/cargo-flights", async (req,res) => {
         res.status(500).json({error:"Failed to fetch flight data"})
     }
 })
+
+router.post("/assign-flight", assignFlight)
+router.get("track-flight",trackFlight)
 
 export default router;
