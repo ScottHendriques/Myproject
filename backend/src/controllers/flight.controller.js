@@ -1,6 +1,6 @@
 import axios from "axios";
 import dotenv from "dotenv";
-import Cargo from "../models/cargomodel.model";
+import Cargo from "../models/cargomodel.model.js";
 
 dotenv.config();
 

@@ -1,6 +1,6 @@
-import express from ' express'
-import axios from 'axios'
-import { assignFlight, trackFlight } from '../controllers/flight.controller';
+import express from 'express';
+import axios from 'axios';
+import { assignFlight, trackFlight } from '../controllers/flight.controller.js';
 
 const router = express.Router();
 
@@ -24,6 +24,6 @@ router.get("/cargo-flights", async (req,res) => {
 })
 
 router.post("/assign-flight", assignFlight)
-router.get("track-flight",trackFlight)
+router.get("/track-flight",trackFlight)
 
 export default router;
