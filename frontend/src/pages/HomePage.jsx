@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import {motion} from 'framer-motion';
+import {Navigate, useNavigate} from "react-router-dom";
+import {useAuthStore} from '../store/useAuthStore.js';
 
 import img1 from "../images/Air-Freight-Banner.png";
 import img2 from "../images/Aircraft-stream.png";
@@ -28,6 +30,16 @@ const sections = [
 
 const HomePage = () => {
   const [hovered,setHovered] = useState(null);
+  const navigate = useNavigate();
+  const {authUser} = useAuthStore();
+
+  const handleBooking = () => {
+    if(authUser){
+      navigate("/booking");
+    } else {
+      navigate("/login");
+    }
+  }
 
   return(
     <div className="flex w-full h-screen">
@@ -49,7 +61,7 @@ const HomePage = () => {
               className="mt-4"
             >
               {section.buttonText && (
-                <button className="px-4 py-2 rounded-lg">
+                <button className="px-4 py-2 rounded-lg" onClick={handleBooking}>
                   {section.buttonText}
                 </button>
               )}
