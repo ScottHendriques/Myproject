@@ -8,7 +8,7 @@ import authRoutes from "./routes/auth.route.js";
 import aviationRoutes from "./routes/aviation.routes.js"
 
 dotenv.config()
-const API_KEY = process.env.AVIATIONSTACK_API_KEYl;
+const API_KEY = process.env.AVIATIONSTACK_API_KEY;
 
 const app = express(); 
 
