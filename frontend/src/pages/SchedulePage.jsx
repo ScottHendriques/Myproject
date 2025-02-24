@@ -1,13 +1,23 @@
 import React, { useState } from "react";
+import axios from "axios";
 
 const FlightSchedule = () => {
   const [departure, setDeparture] = useState("");
   const [arrival, setArrival] = useState("");
   const [flightDate, setFlightDate] = useState("");
+  const [flightData, setFlightData] = useState(null);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log({ departure, arrival, flightDate });
+    try {
+      const response = await axios.get(`/api/flights/search`, {
+        params: { departure, arrival, flightDate },
+      });
+      setFlightData(response.data);
+    } catch (error) {
+      console.error("Error fetching flight schedule", error);
+      setFlightData(null);
+    }
   };
 
   return (
@@ -20,7 +30,7 @@ const FlightSchedule = () => {
         
         <h2 className="text-center text-2xl font-bold mb-4">Looking for a particular flight or route?</h2>
         <p className="text-center text-gray-600 mb-6">
-          Use the following search tool to track a particular flight or view the schedule for any of our destinations.
+          Use the search tool to track a particular flight or view the schedule.
         </p>
         <form onSubmit={handleSubmit} className="flex flex-col space-y-4">
           <div className="flex space-x-4">
@@ -61,8 +71,16 @@ const FlightSchedule = () => {
             GET SCHEDULE
           </button>
         </form>
+        {flightData && (
+          <div className="mt-6 p-4 bg-gray-100 rounded-lg">
+            <h3 className="text-xl font-bold">Flight Details</h3>
+            <p><strong>Flight:</strong> {flightData.flight_name}</p>
+            <p><strong>From:</strong> {flightData.departure_airport}</p>
+            <p><strong>To:</strong> {flightData.arrival_airport}</p>
+            <p><strong>Status:</strong> {flightData.status}</p>
+          </div>
+        )}
       </div>
-      <p className="mt-6 text-gray-600">Seasonal Flight Schedule</p>
     </div>
   );
 };
