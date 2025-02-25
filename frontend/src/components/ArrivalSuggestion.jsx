@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 
-const DepartureSuggestion = ({ setDeparture }) => {
+const ArrivalSuggestion = ({ setArrival }) => {
     const [query, setQuery] = useState("");
     const [suggestions, setSuggestions] = useState([]); // Always an array
 
@@ -31,13 +31,13 @@ const DepartureSuggestion = ({ setDeparture }) => {
 
     return (
         <div className="relative w-1/3">
-            <label className="font-semibold">Departing</label>
+            <label className="font-semibold">Arrival</label>
             <input
                 type="text"
                 className="border p-2 rounded-md w-full"
                 value={query}
                 onChange={handleInputChange}
-                placeholder="Enter Departure"
+                placeholder="Enter Arrival"
             />
             {Array.isArray(suggestions) && suggestions.length > 0 && (
                 <ul className="absolute bg-white border mt-1 w-full rounded-md shadow-lg z-10">
@@ -46,7 +46,7 @@ const DepartureSuggestion = ({ setDeparture }) => {
                             className="p-2 cursor-pointer hover:bg-gray-200"
                             onClick={() => {
                                 setQuery(airport.name);
-                                setDeparture(airport.name);
+                                setArrival(airport.name);
                                 setSuggestions([]);
                             }}>
                             {airport.name} ({airport.iata})
@@ -58,4 +58,4 @@ const DepartureSuggestion = ({ setDeparture }) => {
     );
 };
 
-export default DepartureSuggestion;
+export default ArrivalSuggestion;

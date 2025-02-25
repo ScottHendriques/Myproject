@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import axios from "axios";
+import DepartureSuggestion from "../components/departureSuggestion";
+import ArrivalSuggestion from "../components/ArrivalSuggestion";
 
 const FlightSchedule = () => {
   const [departure, setDeparture] = useState("");
@@ -9,51 +10,32 @@ const FlightSchedule = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    try {
-      const response = await axios.get(`/api/flights/search`, {
-        params: { departure, arrival, flightDate },
-      });
-      setFlightData(response.data);
-    } catch (error) {
-      console.error("Error fetching flight schedule", error);
-      setFlightData(null);
+    console.log("Departure:", departure);
+    console.log("Arrival:", arrival);
+    console.log("Flight Date:", flightDate);
+
+    if (!departure || !arrival || !flightDate) {
+        console.error("Please fill in all fields before searching.");
+        return;
     }
+    console.log({departure, arrival, flightDate})
   };
 
   return (
     <div className="min-h-screen bg-[#f5ebcd] flex flex-col items-center pt-20">
-        <div className="text-center mt-6">
-          <h1 className="text-4xl italic text-black">Flight</h1>
-          <h2 className="text-5xl font-bold italic text-black">schedule</h2>
-        </div>
-        <div className="w-full max-w-3xl bg-white p-8 rounded-lg shadow-lg mt-16">
-        
+      <div className="text-center mt-6">
+        <h1 className="text-4xl italic text-black">Flight</h1>
+        <h2 className="text-5xl font-bold italic text-black">schedule</h2>
+      </div>
+      <div className="w-full max-w-3xl bg-white p-8 rounded-lg shadow-lg mt-16">
         <h2 className="text-center text-2xl font-bold mb-4">Looking for a particular flight or route?</h2>
         <p className="text-center text-gray-600 mb-6">
           Use the search tool to track a particular flight or view the schedule.
         </p>
         <form onSubmit={handleSubmit} className="flex flex-col space-y-4">
           <div className="flex space-x-4">
-            <div className="flex flex-col w-1/3">
-              <label className="font-semibold">Departing</label>
-              <input
-                type="text"
-                className="border p-2 rounded-md"
-                placeholder="Enter departure"
-                value={departure}
-                onChange={(e) => setDeparture(e.target.value)}
-              />
-            </div>
-            <div className="flex flex-col w-1/3">
-              <label className="font-semibold">Arriving</label>
-              <input
-                type="text"
-                className="border p-2 rounded-md"
-                placeholder="Enter arrival"
-                value={arrival}
-                onChange={(e) => setArrival(e.target.value)}
-              />
-            </div>
+            <DepartureSuggestion setDeparture={setDeparture}/>
+            <ArrivalSuggestion setArrival={setArrival}/>
             <div className="flex flex-col w-1/3">
               <label className="font-semibold">Flight Date</label>
               <input
@@ -86,3 +68,4 @@ const FlightSchedule = () => {
 };
 
 export default FlightSchedule;
+
