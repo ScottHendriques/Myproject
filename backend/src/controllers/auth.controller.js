@@ -50,6 +50,16 @@ export const signup = async (req,res)=>{
 export const login = async (req,res)=>{
     const {email,password} = req.body;
     try{
+
+        // //checking if admin
+        // if(email === " AdminMUC" && password === "muc@123"){
+        //     generateToken("admin",res);
+        //     return res.status(200).json({
+        //         role: "admin",
+        //         message: "Admin logged in successfully"
+        //     });
+        // }
+        // //checking for regular user
         const user = await User.findOne({email})
 
         if(!user){
@@ -68,6 +78,7 @@ export const login = async (req,res)=>{
             fullname: user.fullname,
             email: user.email,
             profilepic: user.profilepic,
+            // role:"user",
         })
     }catch(error){
         console.log("Error in login controller",error.message)

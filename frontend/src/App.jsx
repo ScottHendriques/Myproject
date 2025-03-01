@@ -12,7 +12,7 @@ import {Toaster} from "react-hot-toast";
 import { useThemeStore } from './store/useThemeStore.js';
 import BookingPage from './pages/BookingPage.jsx';
 import FlightTracker from './pages/tracking.jsx';
-import FlightSchedule from './pages/SchedulePage.jsx';
+import FlightSchedule from './pages/FlightSchedule.jsx';
 import StationCapabilities from './pages/Stationcapabilities.jsx';
 
 const App = () => {
