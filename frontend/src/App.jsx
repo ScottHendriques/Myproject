@@ -13,6 +13,7 @@ import { useThemeStore } from './store/useThemeStore.js';
 import BookingPage from './pages/BookingPage.jsx';
 import FlightTracker from './pages/tracking.jsx';
 import FlightSchedule from './pages/SchedulePage.jsx';
+import StationCapabilities from './pages/Stationcapabilities.jsx';
 
 const App = () => {
   const {authUser,checkAuth,isCheckingAuth} = useAuthStore();
@@ -42,6 +43,7 @@ const App = () => {
         <Route path='/tracking' element={<FlightTracker/>}/>
         <Route path='/tracking/:flightNumber' element={<FlightTracker/>}/>
         <Route path='/flight-schedule' element={<FlightSchedule/>}/>
+        <Route path='/Station-Capabilities' element={<StationCapabilities/>}/>
       </Routes>
 
       <Toaster/>
