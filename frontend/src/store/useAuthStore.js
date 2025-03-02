@@ -2,9 +2,8 @@ import { create } from "zustand";
 import { axiosInstance } from "../lib/axios.js";
 import toast from "react-hot-toast";
 
-
-export const useAuthStore = create((set) => ({
-  authUser: null,
+export const useAuthStore = create((set, get) => ({
+  authUser: JSON.parse(localStorage.getItem("authUser")) || null,
   isSigningUp: false,
   isLoggingIn: false,
   isUpdatingProfile: false,
@@ -13,11 +12,12 @@ export const useAuthStore = create((set) => ({
   checkAuth: async () => {
     try {
       const res = await axiosInstance.get("/auth/check");
-
       set({ authUser: res.data });
+      localStorage.setItem("authUser", JSON.stringify(res.data)); // Persist login
     } catch (error) {
       console.log("Error in checkAuth:", error);
       set({ authUser: null });
+      localStorage.removeItem("authUser");
     } finally {
       set({ isCheckingAuth: false });
     }
@@ -28,6 +28,7 @@ export const useAuthStore = create((set) => ({
     try {
       const res = await axiosInstance.post("/auth/signup", data);
       set({ authUser: res.data });
+      localStorage.setItem("authUser", JSON.stringify(res.data));
       toast.success("Account created successfully");
     } catch (error) {
       toast.error(error.response.data.message);
@@ -41,6 +42,7 @@ export const useAuthStore = create((set) => ({
     try {
       const res = await axiosInstance.post("/auth/login", data);
       set({ authUser: res.data });
+      localStorage.setItem("authUser", JSON.stringify(res.data));
       toast.success("Logged in successfully");
 
       get().connectSocket();
@@ -55,6 +57,7 @@ export const useAuthStore = create((set) => ({
     try {
       await axiosInstance.post("/auth/logout");
       set({ authUser: null });
+      localStorage.removeItem("authUser");
       toast.success("Logged out successfully");
     } catch (error) {
       toast.error(error.response.data.message);
@@ -66,6 +69,7 @@ export const useAuthStore = create((set) => ({
     try {
       const res = await axiosInstance.put("/auth/update-profile", data);
       set({ authUser: res.data });
+      localStorage.setItem("authUser", JSON.stringify(res.data));
       toast.success("Profile updated successfully");
     } catch (error) {
       console.log("error in update profile:", error);

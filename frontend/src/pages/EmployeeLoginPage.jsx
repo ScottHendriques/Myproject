@@ -1,20 +1,27 @@
 import { useState } from "react";
 import { useAuthStore } from "../store/useAuthStore";
 import AuthImagePattern from "../components/AuthImagePattern";
-import { Link } from "react-router-dom";
-import { Eye, EyeOff, Loader2, Lock, Mail, MessageSquare } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+import { Eye, EyeOff, Loader2, Lock, Mail, Briefcase } from "lucide-react";
+import { toast } from "react-hot-toast";
 
-const LoginPage = () => {
+const EmployeeLoginPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
     email: "",
     password: "",
   });
   const { login, isLoggingIn } = useAuthStore();
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    login(formData);
+    if (formData.email === "AdminMUC@gmail.com" && formData.password === "muc@123") {
+      toast.success("Logged in successfully!");
+      navigate("/admin");
+    } else {
+      toast.error("Invalid Credentials");
+    }
   };
 
   return (
@@ -26,10 +33,10 @@ const LoginPage = () => {
           <div className="text-center mb-8">
             <div className="flex flex-col items-center gap-2 group">
               <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
-                <MessageSquare className="w-6 h-6 text-primary" />
+                <Briefcase className="w-6 h-6 text-primary" />
               </div>
-              <h1 className="text-2xl font-bold mt-2">Welcome Back</h1>
-              <p className="text-base-content/60">Sign in to your account</p>
+              <h1 className="text-2xl font-bold mt-2">Employee Login</h1>
+              <p className="text-base-content/60">Sign in to access employee features</p>
             </div>
           </div>
 
@@ -46,7 +53,7 @@ const LoginPage = () => {
                 <input
                   type="email"
                   className={`input input-bordered w-full pl-10`}
-                  placeholder="you@example.com"
+                  placeholder="employee@example.com"
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                 />
@@ -96,15 +103,9 @@ const LoginPage = () => {
 
           <div className="text-center">
             <p className="text-base-content/60">
-              Don't have an account?{" "}
-              <Link to="/signup" className="link link-primary">
-                Create account
-              </Link>
-            </p>
-            <p className = "text-base-content/60 mt-2">
-              You are an Employee?{" "}
-              <Link to="/employee-login" className="link link-primary">
-                Employee-Login
+              Not an employee? {" "}
+              <Link to="/login" className="link link-primary">
+                User Login
               </Link>
             </p>
           </div>
@@ -114,10 +115,10 @@ const LoginPage = () => {
       {/* Right Side - Image/Pattern */}
       <AuthImagePattern
         title={"Welcome back!"}
-        subtitle={"Sign in to get latest updates on flight schedules and other such features "}
+        subtitle={"Sign in to access employee features and manage operations."}
       />
     </div>
   );
 };
 
-export default LoginPage;
+export default EmployeeLoginPage;

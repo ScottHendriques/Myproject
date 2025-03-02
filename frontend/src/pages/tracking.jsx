@@ -20,8 +20,8 @@ const FlightTracker = () => {
     };
 
     return (
-        <div className="container mx-auto p-4 text-center">
-            <h2 className="text-2xl font-bold mb-4">Flight Tracker</h2>
+        <div className="container mx-auto p-4 text-center mt-20">
+            <h2 className="text-2xl font-bold mb-4 ">Flight Tracker</h2>
             <input 
                 type="text" 
                 placeholder="Enter Flight Number" 

@@ -14,6 +14,8 @@ import BookingPage from './pages/BookingPage.jsx';
 import FlightTracker from './pages/tracking.jsx';
 import FlightSchedule from './pages/FlightSchedule.jsx';
 import StationCapabilities from './pages/Stationcapabilities.jsx';
+import AdminPage from './pages/AdminPage.jsx';
+import EmployeeLoginPage from './pages/EmployeeLoginPage.jsx';
 
 const App = () => {
   const {authUser,checkAuth,isCheckingAuth} = useAuthStore();
@@ -35,6 +37,8 @@ const App = () => {
      <Navbar/>
       <Routes>
         <Route path='/' element={authUser ? <HomePage/> : <Navigate to = "/login"/>}/>
+        <Route path='/employee-login' element={<EmployeeLoginPage/>}/>
+        <Route path='/admin' element={<AdminPage/>}/>
         <Route path='/signup' element={!authUser ? <SignUpPage/> : <Navigate to="/"/>}/>
         <Route path='/login' element={!authUser ? <LoginPage/> : <Navigate to="/"/>}/>
         <Route path='/settings' element={ <SettingsPage/>}/>

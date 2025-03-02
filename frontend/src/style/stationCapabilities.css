@@ -4,7 +4,7 @@
 .container {
     text-align: center;
     font-family: 'Montserrat', sans-serif;
-    padding: 20px;
+    padding: 10px;
 }
 
 .title {
@@ -30,9 +30,10 @@
 .description {
     color: #666;
     font-size: 14px;
-    max-width: 600px;
-    text-align: right;
+    /* max-width: 600px; */
+    text-align: center;
     margin: 0 auto 20 px;
+    padding: 2;
 }
 
 .dropdown {
