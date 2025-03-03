@@ -16,6 +16,8 @@ import FlightSchedule from './pages/FlightSchedule.jsx';
 import StationCapabilities from './pages/Stationcapabilities.jsx';
 import AdminPage from './pages/AdminPage.jsx';
 import EmployeeLoginPage from './pages/EmployeeLoginPage.jsx';
+import Footer from './components/Footer.jsx';
+import AboutUs from './pages/AboutUs.jsx';
 
 const App = () => {
   const {authUser,checkAuth,isCheckingAuth} = useAuthStore();
@@ -48,9 +50,12 @@ const App = () => {
         <Route path='/tracking/:flightNumber' element={<FlightTracker/>}/>
         <Route path='/flight-schedule' element={<FlightSchedule/>}/>
         <Route path='/Station-Capabilities' element={<StationCapabilities/>}/>
+        <Route path='/Aboutus' element={<AboutUs/>}/>
       </Routes>
 
       <Toaster/>
+
+      <Footer/>
     </div>
   );
 }
