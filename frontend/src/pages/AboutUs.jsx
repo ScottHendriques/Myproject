@@ -1,6 +1,9 @@
 import React from 'react';
 import { Mail, Phone, MapPin, Package, Search, ClipboardCheck, Settings, Palette, ShieldCheck, Send, Instagram, Facebook, Twitter, Flag, Target } from 'lucide-react';
 import { useThemeStore } from '../store/useThemeStore'; 
+import logoColor from '../images/logo-color.png';
+import MV from '../images/M&V.png';
+import GETDONE from '../images/GETSHITDONE.png';
 
 const AboutUs = () => {
   const { theme } = useThemeStore();
@@ -21,9 +24,9 @@ const AboutUs = () => {
         <div className={`font-montserrat text-${theme}-foreground`}>
           <div className={`flex flex-col lg:flex-row items-center justify-center p-10 lg:p-20 bg-${theme}-background`}>
             <div className="lg:w-1/2 text-center lg:text-left space-y-4">
-              <h2 className="text-3xl font-bold">Our Story</h2>
-              <p className="italic text-lg">About</p>
-              <h1 className="text-4xl font-bold">CargoStack</h1>
+              <h2 className="text-5xl font-bold">Our Story</h2>
+              <p className="italic text-2xl">About</p>
+              <h1 className="text-6xl font-bold">CargoStack</h1>
               <p className="text-gray-600">
                 Streamlining global cargo operations with innovative tracking solutions. Experience efficiency and transparency with <span className="italic">CargoStack’s Advanced Freight Management</span>.
               </p>
@@ -36,14 +39,14 @@ const AboutUs = () => {
             </div>
             <div className="lg:w-1/2 flex justify-center mt-6 lg:mt-0">
               <img
-                src="/path-to-founder-image.jpg"
+                src={logoColor}
                 alt="Founder"
                 className="rounded-lg shadow-lg w-full max-w-sm"
               />
             </div>
           </div>
           <div className={`bg-${theme}-secondary text-center py-16 px-10`}>
-            <h3 className="text-gray-500 uppercase tracking-wide text-sm">Our Story</h3>
+            <h3 className="text-gray-500 uppercase tracking-wide text-lg">Our Story</h3>
             <h2 className="text-3xl font-bold mt-2">Our Commitment to Innovation</h2>
             <p className="text-gray-600 mt-4 max-w-3xl mx-auto">
               CargoStack was founded with a mission to transform the logistics industry through digital solutions. Our team is dedicated to providing real-time tracking, optimized shipment management, and a seamless cargo booking experience for businesses worldwide.
@@ -57,25 +60,25 @@ const AboutUs = () => {
             <h2 className="text-5xl font-semibold italic">What is our purpose & Why</h2>
             <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className={`p-6 rounded-lg shadow-lg bg-${theme}-secondary`}>
-                <span className="inline-block px-4 py-1 text-sm font-semibold text-white bg-red-500 rounded-full">MISSION</span>
-                <h3 className="mt-4 text-xl font-medium flex items-center"><Target className="w-5 h-5 mr-2" /> Empowering Cargo Management</h3>
-                <p className="mt-2 text-sm">Our mission is to deliver an innovative, user-friendly cargo management solution that enhances efficiency, transparency, and reliability in air cargo logistics.</p>
+                <span className="inline-block px-4 py-1 text-lg font-semibold text-white bg-red-500 rounded-full">MISSION</span>
+                <h3 className="mt-4 text-2xl font-medium flex items-center"><Target className="w-5 h-5 mr-2" /> Empowering Cargo Management</h3>
+                <p className="mt-2 text-md">Our mission is to deliver an innovative, user-friendly cargo management solution that enhances efficiency, transparency, and reliability in air cargo logistics.</p>
               </div>
               <div className={`p-6 rounded-lg shadow-lg bg-${theme}-secondary`}>
-                <span className="inline-block px-4 py-1 text-sm font-semibold text-white bg-red-500 rounded-full">VISION</span>
-                <h3 className="mt-4 text-xl font-medium flex items-center"><Flag className="w-5 h-5 mr-2" /> Shaping the Future of Air Cargo</h3>
-                <p className="mt-2 text-sm">Our vision is to become the leading platform for air cargo operations, optimizing logistics, reducing delays, and improving global trade efficiency through digital transformation.</p>
+                <span className="inline-block px-4 py-1 text-lg font-semibold text-white bg-red-500 rounded-full">VISION</span>
+                <h3 className="mt-4 text-2xl font-medium flex items-center"><Flag className="w-5 h-5 mr-2" /> Shaping the Future of Air Cargo</h3>
+                <p className="mt-2 text-md">Our vision is to become the leading platform for air cargo operations, optimizing logistics, reducing delays, and improving global trade efficiency through digital transformation.</p>
               </div>
             </div>
           </div>
           <div className="md:w-1/2">
-            <img src="/path-to-image.jpg" alt="CargoStack Vision" className="rounded-lg shadow-lg" />
+            <img src={MV} alt="CargoStack Vision" className="rounded-lg shadow-lg" />
           </div>
         </section>
 
         {/* Features and Services */}
         <section>
-          <h2 className="text-3xl font-semibold text-center">Features & Services</h2>
+          <h2 className="text-5xl font-semibold text-center">Features & Services</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-8">
             {features.map((feature, index) => (
               <div
@@ -83,8 +86,8 @@ const AboutUs = () => {
                 className={`p-6 rounded-lg shadow-lg bg-${theme}-secondary transition-transform transform hover:scale-105 hover:bg-${theme}-primary hover:shadow-lg hover:shadow-${theme}-primary/50 flex flex-col items-center text-center`}
               >
                 <feature.icon className={`w-10 h-10 mb-4 text-${theme}-foreground`} />
-                <h3 className="text-xl font-medium">{feature.title}</h3>
-                <p className="mt-2 text-sm">{feature.description}</p>
+                <h3 className="text-2xl font-medium">{feature.title}</h3>
+                <p className="mt-2 text-md">{feature.description}</p>
               </div>
             ))}
           </div>
@@ -92,7 +95,7 @@ const AboutUs = () => {
 
         {/* Contact Info */}
         <section className="text-center">
-          <h2 className="text-3xl font-semibold">Contact Us</h2>
+          <h2 className="text-5xl font-semibold">Contact Us</h2>
           <div className="flex flex-col items-center mt-6 space-y-4">
             <div className="flex items-center space-x-2">
               <Mail className="w-6 h-6" />
