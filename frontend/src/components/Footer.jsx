@@ -5,7 +5,7 @@ const Footer = () => {
   const { theme } = useThemeStore(); 
 
   return (
-    <footer className="text-white" data-theme={theme}>
+    <footer className="mt-auto text-white" data-theme={theme}>
       <div className="bg-base-100 text-base-content py-4 text-center">
         <p className="text-lg font-medium">Stay connected with us</p>
         <div className="flex justify-center gap-4 mt-2">
