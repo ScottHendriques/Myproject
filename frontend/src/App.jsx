@@ -11,13 +11,14 @@ import {Loader} from "lucide-react";
 import {Toaster} from "react-hot-toast";
 import { useThemeStore } from './store/useThemeStore.js';
 import BookingPage from './pages/BookingPage.jsx';
-import FlightTracker from './pages/tracking.jsx';
+import TrackingPage from './pages/TrackingPage.jsx';
 import FlightSchedule from './pages/FlightSchedule.jsx';
 import StationCapabilities from './pages/Stationcapabilities.jsx';
 import AdminPage from './pages/AdminPage.jsx';
 import EmployeeLoginPage from './pages/EmployeeLoginPage.jsx';
 import Footer from './components/Footer.jsx';
 import AboutUs from './pages/AboutUs.jsx';
+
 
 const App = () => {
   const {authUser,checkAuth,isCheckingAuth} = useAuthStore();
@@ -46,8 +47,8 @@ const App = () => {
         <Route path='/settings' element={ <SettingsPage/>}/>
         <Route path='/profile' element={authUser ? <ProfilePage/> : <Navigate to="/login"/>}/>
         <Route path='/booking' element={authUser ? <BookingPage/> : <Navigate to='/login'/>}/>
-        <Route path='/tracking' element={<FlightTracker/>}/>
-        <Route path='/tracking/:flightNumber' element={<FlightTracker/>}/>
+        <Route path='/tracking' element={<TrackingPage/>}/>
+        <Route path='/tracking/:flightNumber' element={<TrackingPage/>}/>
         <Route path='/flight-schedule' element={<FlightSchedule/>}/>
         <Route path='/Station-Capabilities' element={<StationCapabilities/>}/>
         <Route path='/Aboutus' element={<AboutUs/>}/>
