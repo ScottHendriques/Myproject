@@ -2,6 +2,7 @@ import axios from "axios";
 import dotenv from "dotenv";
 import Cargo from "../models/cargomodel.model.js";
 
+
 dotenv.config();
 
 const API_KEY = process.env.AVIATIONSTACK_API_KEY;
@@ -43,3 +44,5 @@ export const trackFlight = async (req, res) => {
         res.status(500).json({ message: "Error in tracking flight" });
     }
 };
+
+

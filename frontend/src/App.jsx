@@ -36,8 +36,9 @@ const App = () => {
   )
 
   return (
-    <div data-theme={theme}>
+    <div data-theme={theme} className="flex flex-col min-h-screen">
      <Navbar/>
+      <main className='flex-grow mt-20'>
       <Routes>
         <Route path='/' element={authUser ? <HomePage/> : <Navigate to = "/login"/>}/>
         <Route path='/employee-login' element={<EmployeeLoginPage/>}/>
@@ -53,10 +54,12 @@ const App = () => {
         <Route path='/Station-Capabilities' element={<StationCapabilities/>}/>
         <Route path='/Aboutus' element={<AboutUs/>}/>
       </Routes>
+      </main>
+      <Footer/>
 
       <Toaster/>
 
-      <Footer/>
+      
     </div>
   );
 }

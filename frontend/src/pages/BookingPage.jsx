@@ -4,27 +4,30 @@ import { MapPin, Calendar, Package, ClipboardList, Weight, UploadCloud } from "l
 
 const BookingPage = () => {
   const { theme } = useThemeStore();
-  const [shippingFrom, setShippingFrom] = useState("Abu Dhabi, AUH");
+  const [shippingFrom, setShippingFrom] = useState("");
   const [shippingTo, setShippingTo] = useState("");
   const [shippingDate, setShippingDate] = useState("");
-  const [items, setItems] = useState([
+  const [description, setDescription] = useState([
     { pieces: 0, length: 0, width: 0, height: 0, weight: 0 },
   ]);
   const [promoType, setPromoType] = useState("");
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [item, setItem] = useState("");
+  const [totalWeight, setTotalWeight] = useState(0);
 
   const addItem = () => {
-    setItems([...items, { pieces: 0, length: 0, width: 0, height: 0, weight: 0 }]);
+    setDescription([...description, { pieces: 0, length: 0, width: 0, height: 0, weight: 0 }]);
   };
 
   const updateItem = (index, field, value) => {
-    const newItems = [...items];
+    const newItems = [...description];
     newItems[index][field] = Number(value);
-    setItems(newItems);
+    setDescription(newItems);
   };
 
   const calculateSummary = () => {
-    const grossWeight = items.reduce((acc, item) => acc + item.pieces * item.weight, 0);
-    const volume = items.reduce((acc, item) => acc + (item.length * item.width * item.height * item.pieces) / 1000000, 0);
+    const grossWeight = description.reduce((acc, item) => acc + item.pieces * item.weight, 0);
+    const volume = description.reduce((acc, item) => acc + (item.length * item.width * item.height * item.pieces) / 1000000, 0);
     const density = volume ? (grossWeight / volume).toFixed(2) : 0;
     const chargeableWeight = Math.max(grossWeight, volume * 167).toFixed(2);
 
@@ -32,6 +35,33 @@ const BookingPage = () => {
   };
 
   const { grossWeight, volume, density, chargeableWeight } = calculateSummary();
+
+  const handleFileChange = (e) => {
+    setSelectedFile(e.target.files[0]);
+  };
+
+  const handleUpload = async () => {
+    const formData = new FormData();
+    formData.append("file", selectedFile);
+    formData.append("shippingFrom", shippingFrom);
+    formData.append("shippingTo", shippingTo);
+    formData.append("date", shippingDate);
+    formData.append("item", item);
+    formData.append("totalWeight", totalWeight);
+    formData.append("description", JSON.stringify(description));
+    formData.append("grossWeight", grossWeight);
+
+    try {
+      const response = await fetch("http://localhost:5001/api/upload", {
+        method: "POST",
+        body: formData,
+      });
+      const data = await response.json();
+      console.log(data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   return (
     <div className="mt-20 p-6 bg-base-100 shadow-lg rounded-xl">
@@ -93,6 +123,8 @@ const BookingPage = () => {
             <input
               type="text"
               placeholder="Look up item"
+              value={item}
+              onChange={(e) => setItem(e.target.value)}
               className="input input-bordered pl-10 w-full"
             />
           </div>
@@ -109,13 +141,15 @@ const BookingPage = () => {
             <input
               type="number"
               placeholder="Total weight"
+              value={totalWeight}
+              onChange={(e) => setTotalWeight(Number(e.target.value))}
               className="input input-bordered pl-10 w-full"
             />
           </div>
         </div>
       </div>
 
-      {items.map((item, index) => (
+      {description.map((item, index) => (
         <div key={index} className="mt-4 p-4 border rounded-lg">
           <div className="grid grid-cols-5 gap-2">
             <label className="label">
@@ -178,10 +212,11 @@ const BookingPage = () => {
         <button className="btn btn-primary flex items-center gap-2" onClick={addItem}>
           <span>+ Add another</span>
         </button>
-        <button className="btn btn-outline flex items-center gap-2">
+        <input type="file" onChange={handleFileChange} className="hidden" id="file-upload" />
+        <label htmlFor="file-upload" className="btn btn-outline flex items-center gap-2 cursor-pointer">
           <UploadCloud size={16} />
           <span>Upload</span>
-        </button>
+        </label>
       </div>
 
       <div className="mt-4 flex items-center gap-4">
@@ -211,7 +246,7 @@ const BookingPage = () => {
         <div className="grid grid-cols-5 gap-4 text-center border-b pb-2">
           <div>
             <p className="text-sm text-gray-500">Pieces</p>
-            <p className="text-lg font-bold">{items.reduce((acc, item) => acc + item.pieces, 0)}</p>
+            <p className="text-lg font-bold">{description.reduce((acc, item) => acc + item.pieces, 0)}</p>
           </div>
           <div>
             <p className="text-sm text-gray-500">Gross weight</p>
@@ -231,11 +266,11 @@ const BookingPage = () => {
           </div>
         </div>
         <div className="flex justify-between mt-4">
-          <button className="btn btn-primary">Continue</button>
+          <button className="btn btn-primary" onClick={handleUpload}>Continue</button>
           <button
             className="text-blue-500"
             onClick={() => {
-              setItems([{ pieces: 0, length: 0, width: 0, height: 0, weight: 0 }]);
+              setDescription([{ pieces: 0, length: 0, width: 0, height: 0, weight: 0 }]);
             }}
           >
             Clear all
