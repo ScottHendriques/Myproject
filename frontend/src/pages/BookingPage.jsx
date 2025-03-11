@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { useThemeStore } from "@/store/useThemeStore";
-import { MapPin, Calendar, Package, ClipboardList, Weight, UploadCloud } from "lucide-react";
+import { MapPin, Calendar, Package, ClipboardList, Weight } from "lucide-react";
+import AirportAutoComplete from "@/components/Autocomplete";
+import ItemDropDown from "../components/ItemDropDown";
 
 const BookingPage = () => {
   const { theme } = useThemeStore();
@@ -67,13 +69,7 @@ const BookingPage = () => {
           </label>
           <div className="relative">
             <MapPin className="absolute top-3 left-3" />
-            <input
-              type="text"
-              placeholder="Shipping from"
-              value={shippingFrom}
-              onChange={(e) => setShippingFrom(e.target.value)}
-              className="input input-bordered pl-10 w-full"
-            />
+            <AirportAutoComplete onSelect={setShippingFrom} />
           </div>
         </div>
         <div className="form-control">
@@ -82,13 +78,7 @@ const BookingPage = () => {
           </label>
           <div className="relative">
             <MapPin className="absolute top-3 left-3" />
-            <input
-              type="text"
-              placeholder="Destination"
-              value={shippingTo}
-              onChange={(e) => setShippingTo(e.target.value)}
-              className="input input-bordered pl-10 w-full"
-            />
+            <AirportAutoComplete onSelect={setShippingTo} />
           </div>
         </div>
         <div className="form-control">
@@ -113,14 +103,8 @@ const BookingPage = () => {
         </label>
         <div className="grid grid-cols-3 gap-4">
           <div className="relative">
-            <Package className="absolute top-3 left-3" />
-            <input
-              type="text"
-              placeholder="Look up item"
-              value={item}
-              onChange={(e) => setItem(e.target.value)}
-              className="input input-bordered pl-10 w-full"
-            />
+            
+            <ItemDropDown/>
           </div>
           <div className="relative">
             <ClipboardList className="absolute top-3 left-3" />
