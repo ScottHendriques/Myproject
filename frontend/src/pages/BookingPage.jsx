@@ -11,7 +11,6 @@ const BookingPage = () => {
     { pieces: 0, length: 0, width: 0, height: 0, weight: 0 },
   ]);
   const [promoType, setPromoType] = useState("");
-  const [selectedFile, setSelectedFile] = useState(null);
   const [item, setItem] = useState("");
   const [totalWeight, setTotalWeight] = useState(0);
 
@@ -36,13 +35,8 @@ const BookingPage = () => {
 
   const { grossWeight, volume, density, chargeableWeight } = calculateSummary();
 
-  const handleFileChange = (e) => {
-    setSelectedFile(e.target.files[0]);
-  };
-
   const handleUpload = async () => {
     const formData = new FormData();
-    formData.append("file", selectedFile);
     formData.append("shippingFrom", shippingFrom);
     formData.append("shippingTo", shippingTo);
     formData.append("date", shippingDate);
@@ -52,7 +46,7 @@ const BookingPage = () => {
     formData.append("grossWeight", grossWeight);
 
     try {
-      const response = await fetch("http://localhost:5001/api/upload", {
+      const response = await fetch("http://localhost:5001/api/cargo", {
         method: "POST",
         body: formData,
       });
@@ -212,11 +206,6 @@ const BookingPage = () => {
         <button className="btn btn-primary flex items-center gap-2" onClick={addItem}>
           <span>+ Add another</span>
         </button>
-        <input type="file" onChange={handleFileChange} className="hidden" id="file-upload" />
-        <label htmlFor="file-upload" className="btn btn-outline flex items-center gap-2 cursor-pointer">
-          <UploadCloud size={16} />
-          <span>Upload</span>
-        </label>
       </div>
 
       <div className="mt-4 flex items-center gap-4">

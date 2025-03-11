@@ -1,34 +1,8 @@
 import mongoose from 'mongoose';
 
-const descriptionSchema = new mongoose.Schema({
-  pieces: { type: Number, required: true },
-  length: { type: Number, required: true },
-  width: { type: Number, required: true },
-  height: { type: Number, required: true },
-  weight: { type: Number, required: true },
-});
+
 
 const bookingSchema = new mongoose.Schema({
-  // filename: {
-  //   type: String,
-  //   required: true,
-  // },
-  // filepath: {
-  //   type: String,
-  //   required: true,
-  // },
-  // mimetype: {
-  //   type: String,
-  //   required: true,
-  // },
-  // size: {
-  //   type: Number,
-  //   required: true,
-  // },
-  // uploadedAt: {
-  //   type: Date,
-  //   default: Date.now,
-  // },
   shippingFrom: {
     type: String,
     required: true,
@@ -49,7 +23,6 @@ const bookingSchema = new mongoose.Schema({
     type: Number,
     required: true,
   },
-  //description: [descriptionSchema],
   lenght:{
     type: Number,
     required: true,
