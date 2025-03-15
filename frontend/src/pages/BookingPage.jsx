@@ -1,11 +1,15 @@
 import { useState } from "react";
 import { useThemeStore } from "@/store/useThemeStore";
+import { useAuthStore } from "@/store/useAuthStore";
+import { useNavigate } from "react-router-dom";
 import { MapPin, Calendar, Package, ClipboardList, Weight } from "lucide-react";
 import AirportAutoComplete from "@/components/Autocomplete";
 import ItemDropDown from "../components/ItemDropDown";
 
 const BookingPage = () => {
   const { theme } = useThemeStore();
+  const { authUser } = useAuthStore();
+  const navigate = useNavigate();
   const [shippingFrom, setShippingFrom] = useState("");
   const [shippingTo, setShippingTo] = useState("");
   const [shippingDate, setShippingDate] = useState("");
@@ -37,21 +41,31 @@ const BookingPage = () => {
 
   const { grossWeight, volume, density, chargeableWeight } = calculateSummary();
 
-  const handleUpload = async () => {
-    const formData = new FormData();
+  const handleUpload = async (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
     formData.append("shippingFrom", shippingFrom);
     formData.append("shippingTo", shippingTo);
     formData.append("date", shippingDate);
     formData.append("item", item);
     formData.append("totalWeight", totalWeight);
-    formData.append("description", JSON.stringify(description));
     formData.append("grossWeight", grossWeight);
+    formData.append("description", JSON.stringify(description));
 
     try {
-      const response = await fetch("http://localhost:5001/api/cargo", {
+      const payload = Object.fromEntries(formData); // Convert formData to an object
+      console.log("Payload:", payload);
+      const response = await fetch(`http://localhost:5001/api/cargo/${authUser._id}`, {
         method: "POST",
-        body: formData,
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
       });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
       const data = await response.json();
       console.log(data);
     } catch (error) {
@@ -59,8 +73,13 @@ const BookingPage = () => {
     }
   };
 
+  const handleContinue = () => {
+    navigate('/select', {state: {bookingData: {shippingFrom, shippingTo, shippingDate, item, totalWeight, grossWeight, pieces: description.reduce((acc, item) => acc + item.pieces, 0)}}});
+  };
+
+
   return (
-    <div className="mt-20 p-6 bg-base-100 shadow-lg rounded-xl">
+    <form onSubmit={handleUpload} className="mt-20 p-6 bg-base-100 shadow-lg rounded-xl">
       <h2 className="text-2xl font-bold mb-4">Booking</h2>
       <div className="grid grid-cols-3 gap-4 mb-4">
         <div className="form-control">
@@ -89,6 +108,7 @@ const BookingPage = () => {
             <Calendar className="absolute top-3 left-3" />
             <input
               type="date"
+              name="date"
               value={shippingDate}
               onChange={(e) => setShippingDate(e.target.value)}
               className="input input-bordered pl-10 w-full"
@@ -96,33 +116,41 @@ const BookingPage = () => {
           </div>
         </div>
       </div>
-
+    
       <div className="my-4">
         <label className="label">
           <span className="label-text">What are you shipping?</span>
         </label>
         <div className="grid grid-cols-3 gap-4">
           <div className="relative">
-            
-            <ItemDropDown/>
+            <ItemDropDown onSelect={setItem} />
           </div>
           <div className="relative">
             <ClipboardList className="absolute top-3 left-3" />
             <input
               type="text"
+              name="specialHandlingCodes"
               placeholder="Additional special handling codes"
               className="input input-bordered pl-10 w-full"
             />
           </div>
-          <div className="relative">
-            <Weight className="absolute top-3 left-3" />
-            <input
-              type="number"
-              placeholder="Total weight"
-              value={totalWeight}
-              onChange={(e) => setTotalWeight(Number(e.target.value))}
-              className="input input-bordered pl-10 w-full"
-            />
+        </div>
+        <div className="my-4">
+          <label className="label">
+            <span className="label-text">Total Weight</span>
+          </label>
+          <div className="grid grid-cols-3 gap-4">
+            <div className="relative">
+              <Weight className="absolute top-3 left-3" />
+              <input
+                type="number"
+                name="totalWeight"
+                placeholder="Total weight"
+                value={totalWeight}
+                onChange={(e) => setTotalWeight(Number(e.target.value))}
+                className="input input-bordered pl-10 w-full"
+              />
+            </div>
           </div>
         </div>
       </div>
@@ -149,6 +177,7 @@ const BookingPage = () => {
           <div className="grid grid-cols-5 gap-2 mt-2">
             <input
               type="number"
+              name={`description[${index}].pieces`}
               placeholder="Pieces"
               className="input input-bordered"
               value={item.pieces === 0 ? "" : item.pieces}
@@ -156,6 +185,7 @@ const BookingPage = () => {
             />
             <input
               type="number"
+              name={`description[${index}].length`}
               placeholder="Length"
               className="input input-bordered"
               value={item.length === 0 ? "" : item.length}
@@ -163,6 +193,7 @@ const BookingPage = () => {
             />
             <input
               type="number"
+              name={`description[${index}].width`}
               placeholder="Width"
               className="input input-bordered"
               value={item.width === 0 ? "" : item.width}
@@ -170,6 +201,7 @@ const BookingPage = () => {
             />
             <input
               type="number"
+              name={`description[${index}].height`}
               placeholder="Height"
               className="input input-bordered"
               value={item.height === 0 ? "" : item.height}
@@ -177,6 +209,7 @@ const BookingPage = () => {
             />
             <input
               type="number"
+              name={`description[${index}].weight`}
               placeholder="Weight"
               className="input input-bordered"
               value={item.weight === 0 ? "" : item.weight}
@@ -187,7 +220,7 @@ const BookingPage = () => {
       ))}
 
       <div className="mt-4 flex items-center gap-4">
-        <button className="btn btn-primary flex items-center gap-2" onClick={addItem}>
+        <button type="button" className="btn btn-primary flex items-center gap-2" onClick={addItem}>
           <span>+ Add another</span>
         </button>
       </div>
@@ -208,6 +241,7 @@ const BookingPage = () => {
         <div className="mt-2">
           <input
             type="text"
+            name="promoCode"
             placeholder="Enter promo code (optional)"
             className="input input-bordered w-full"
           />
@@ -239,8 +273,9 @@ const BookingPage = () => {
           </div>
         </div>
         <div className="flex justify-between mt-4">
-          <button className="btn btn-primary" onClick={handleUpload}>Continue</button>
+          <button type="submit" onClick={handleContinue} className="btn btn-primary">Continue</button>
           <button
+            type="button"
             className="text-blue-500"
             onClick={() => {
               setDescription([{ pieces: 0, length: 0, width: 0, height: 0, weight: 0 }]);
@@ -250,7 +285,7 @@ const BookingPage = () => {
           </button>
         </div>
       </div>
-    </div>
+    </form>
   );
 };
 

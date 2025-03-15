@@ -1,6 +1,8 @@
 import React, { useState } from "react";
+import { useThemeStore } from "../store/useThemeStore.js";
 
 const AirportAutoComplete = ({ onSelect }) => {
+  const { theme } = useThemeStore();
   const [query, setQuery] = useState("");
   const [airports, setAirports] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -32,13 +34,13 @@ const AirportAutoComplete = ({ onSelect }) => {
   };
 
   return (
-    <div className="relative w-full">
+    <div className={`relative w-full theme-${theme}`}>
       <input
         type="text"
         value={query}
         placeholder="Search for an airport"
         onChange={handleChange}
-        className="w-full p-2 border rounded-lg"
+        className={`w-full p-2 vorder rounded-lg bg-${theme}-background text-${theme}-text`}
       />
       {loading && <p className="text-sm text-gray-500">Loading ...</p>}
       {airports.length > 0 && (

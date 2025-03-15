@@ -18,6 +18,7 @@ import AdminPage from './pages/AdminPage.jsx';
 import EmployeeLoginPage from './pages/EmployeeLoginPage.jsx';
 import Footer from './components/Footer.jsx';
 import AboutUs from './pages/AboutUs.jsx';
+import SelectFlight from './pages/SelectFlight.jsx';
 
 
 const App = () => {
@@ -48,6 +49,7 @@ const App = () => {
         <Route path='/settings' element={ <SettingsPage/>}/>
         <Route path='/profile' element={authUser ? <ProfilePage/> : <Navigate to="/login"/>}/>
         <Route path='/booking' element={authUser ? <BookingPage/> : <Navigate to='/login'/>}/>
+        <Route path='/select' element={authUser ? <SelectFlight/> : <Navigate to='/login'/>}/>
         <Route path='/tracking' element={<TrackingPage/>}/>
         <Route path='/tracking/:flightNumber' element={<TrackingPage/>}/>
         <Route path='/flight-schedule' element={<FlightSchedule/>}/>

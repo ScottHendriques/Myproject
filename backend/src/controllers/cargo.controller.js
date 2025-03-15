@@ -4,6 +4,9 @@ export const cargoData = async (req, res) => {
   const { shippingFrom, shippingTo, date, item, totalWeight, length, width, height, weight, grossWeight } = req.body;
   const userId = req.params.userId;
 
+  console.log("Request Body:", req.body);
+  console.log ("User ID:", userId);
+  
   try {
     const booking = new Booking({
       shippingFrom,
