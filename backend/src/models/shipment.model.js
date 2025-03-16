@@ -5,7 +5,7 @@ import mongoose from 'mongoose';
 const bookingSchema = new mongoose.Schema({
   shippingFrom: { type: String, required: true },
   shippingTo: { type: String, required: true },
-  date: { type: Date, required: true },
+  date: { type: String, required: true },
   item: { type: String, required: true },
   totalWeight: { type: Number, required: true },
   grossWeight: { type: Number, required: true },

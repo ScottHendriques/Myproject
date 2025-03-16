@@ -11,7 +11,7 @@ export const cargoData = async (req, res) => {
     const booking = new Booking({
       shippingFrom,
       shippingTo,
-      date,
+      date: new Date().toISOString().split("T")[0],
       item,
       totalWeight,
       length,
