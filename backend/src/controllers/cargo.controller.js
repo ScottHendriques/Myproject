@@ -8,22 +8,26 @@ export const cargoData = async (req, res) => {
   console.log ("User ID:", userId);
   
   try {
+    console.log("Received data:", req.body);
+
     const booking = new Booking({
-      shippingFrom,
-      shippingTo,
-      date: new Date().toISOString().split("T")[0],
-      item,
-      totalWeight,
-      length,
-      width,
-      height,
-      weight,
-      grossWeight,
+      shippingFrom: req.body.shippingFrom,
+      shippingTo: req.body.shippingTo,
+      date: req.body.date,
+      item: req.body.item,
+      totalWeight: req.body.totalWeight,
+      grossWeight: req.body.grossWeight,
+      pieces: req.body.pieces,
+      length: req.body.length,
+      width: req.body.width,
+      height: req.body.height,
+      weight: req.body.weight,
       user: userId,
     });
     await booking.save();
     res.status(200).json({ message: "Booking saved successfully", booking });
   } catch (error) {
-    res.status(500).json({ message: "Error saving booking to database", error });
+    console.error("Error in cargoData:", error);
+    res.status(500).json({ message: "Server error", error });
   }
 };

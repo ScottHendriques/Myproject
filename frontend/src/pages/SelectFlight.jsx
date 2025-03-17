@@ -16,7 +16,7 @@ const SelectFlight = () => {
                 if (!API_KEY) {
                     throw new Error("API Key is missing");
                 }
-                const bookingDate = new Date(bookingData.shippingDate).toISOString().split("T")[0];
+                const bookingDate = bookingData.shippingDate;
                 const url = `https://api.aviationstack.com/v1/flights?access_key=${API_KEY}&dep_iata=${bookingData.shippingFrom}&arr_iata=${bookingData.shippingTo}&limit=5`;
 
 

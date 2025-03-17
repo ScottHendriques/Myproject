@@ -5,6 +5,8 @@ import { useNavigate } from "react-router-dom";
 import { MapPin, Calendar, Package, ClipboardList, Weight } from "lucide-react";
 import AirportAutoComplete from "@/components/Autocomplete";
 import ItemDropDown from "../components/ItemDropDown";
+import { toast } from "react-toastify"; // Import toast from react-toastify
+import "react-toastify/dist/ReactToastify.css"; // Import toastify CSS
 
 const BookingPage = () => {
   const { theme } = useThemeStore();
@@ -13,26 +15,18 @@ const BookingPage = () => {
   const [shippingFrom, setShippingFrom] = useState("");
   const [shippingTo, setShippingTo] = useState("");
   const [shippingDate, setShippingDate] = useState("");
-  const [description, setDescription] = useState([
-    { pieces: 0, length: 0, width: 0, height: 0, weight: 0 },
-  ]);
+  const [pieces, setPieces] = useState("");
+  const [length, setLength] = useState("");
+  const [width, setWidth] = useState("");
+  const [height, setHeight] = useState("");
+  const [weight, setWeight] = useState("");
   const [promoType, setPromoType] = useState("");
   const [item, setItem] = useState("");
   const [totalWeight, setTotalWeight] = useState(0);
 
-  const addItem = () => {
-    setDescription([...description, { pieces: 0, length: 0, width: 0, height: 0, weight: 0 }]);
-  };
-
-  const updateItem = (index, field, value) => {
-    const newItems = [...description];
-    newItems[index][field] = Number(value);
-    setDescription(newItems);
-  };
-
   const calculateSummary = () => {
-    const grossWeight = description.reduce((acc, item) => acc + item.pieces * item.weight, 0);
-    const volume = description.reduce((acc, item) => acc + (item.length * item.width * item.height * item.pieces) / 1000000, 0);
+    const grossWeight = pieces * weight;
+    const volume = (length * width * height * pieces) / 1000000;
     const density = volume ? (grossWeight / volume).toFixed(2) : 0;
     const chargeableWeight = Math.max(grossWeight, volume * 167).toFixed(2);
 
@@ -43,19 +37,37 @@ const BookingPage = () => {
 
   const handleUpload = async (e) => {
     e.preventDefault();
-    const formData = new FormData(e.target);
-    formData.append("shippingFrom", shippingFrom);
-    formData.append("shippingTo", shippingTo);
-    formData.append("date", shippingDate);
-    formData.append("item", item);
-    formData.append("totalWeight", totalWeight);
-    formData.append("grossWeight", grossWeight);
-    formData.append("description", JSON.stringify(description));
+    if (!authUser || !authUser._id) {
+      toast.error("User not authenticated!");
+      return;
+    }
+
+    // Ensure all form values exist
+    if (!pieces || !length || !width || !height || !weight) {
+      toast.error("Please fill in all cargo details.");
+      return;
+    }
+
+    // Construct payload
+    const payload = {
+      shippingFrom,
+      shippingTo,
+      date: shippingDate,
+      item,
+      totalWeight: parseFloat(totalWeight),
+      grossWeight: parseFloat(grossWeight),
+      pieces: parseInt(pieces, 10),
+      length: parseFloat(length),
+      width: parseFloat(width),
+      height: parseFloat(height),
+      weight: parseFloat(weight),
+      user: authUser._id, // Include the user ID in the payload
+    };
+
+    console.log("Payload being sent:", payload);
 
     try {
-      const payload = Object.fromEntries(formData); // Convert formData to an object
-      console.log("Payload:", payload);
-      const response = await fetch(`http://localhost:5001/api/cargo/${authUser._id}`, {
+      const res = await fetch(`http://localhost:5001/api/cargo/${authUser._id}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -63,20 +75,25 @@ const BookingPage = () => {
         body: JSON.stringify(payload),
       });
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+      if (!res.ok) {
+        const errorText = await res.text();
+        throw new Error(`HTTP error! status: ${res.status}, message: ${errorText}`);
       }
-      const data = await response.json();
-      console.log(data);
+
+      const data = await res.json();
+      console.log("Upload successful!", data);
+      toast.success("Booking created successfully!");
+
+      // Optionally reset form fields
     } catch (error) {
-      console.error(error);
+      console.error("Upload error:", error);
+      toast.error("Failed to create booking. Please try again.");
     }
   };
 
   const handleContinue = () => {
-    navigate('/select', {state: {bookingData: {shippingFrom, shippingTo, shippingDate, item, totalWeight, grossWeight, pieces: description.reduce((acc, item) => acc + item.pieces, 0)}}});
+    navigate('/select', { state: { bookingData: { shippingFrom, shippingTo, shippingDate, item, totalWeight, grossWeight, pieces } } });
   };
-
 
   return (
     <form onSubmit={handleUpload} className="mt-20 p-6 bg-base-100 shadow-lg rounded-xl">
@@ -116,7 +133,7 @@ const BookingPage = () => {
           </div>
         </div>
       </div>
-    
+
       <div className="my-4">
         <label className="label">
           <span className="label-text">What are you shipping?</span>
@@ -155,74 +172,66 @@ const BookingPage = () => {
         </div>
       </div>
 
-      {description.map((item, index) => (
-        <div key={index} className="mt-4 p-4 border rounded-lg">
-          <div className="grid grid-cols-5 gap-2">
-            <label className="label">
-              <span className="label-text">Pieces</span>
-            </label>
-            <label className="label">
-              <span className="label-text">Length</span>
-            </label>
-            <label className="label">
-              <span className="label-text">Width</span>
-            </label>
-            <label className="label">
-              <span className="label-text">Height</span>
-            </label>
-            <label className="label">
-              <span className="label-text">Weight</span>
-            </label>
-          </div>
-          <div className="grid grid-cols-5 gap-2 mt-2">
-            <input
-              type="number"
-              name={`description[${index}].pieces`}
-              placeholder="Pieces"
-              className="input input-bordered"
-              value={item.pieces === 0 ? "" : item.pieces}
-              onChange={(e) => updateItem(index, "pieces", e.target.value)}
-            />
-            <input
-              type="number"
-              name={`description[${index}].length`}
-              placeholder="Length"
-              className="input input-bordered"
-              value={item.length === 0 ? "" : item.length}
-              onChange={(e) => updateItem(index, "length", e.target.value)}
-            />
-            <input
-              type="number"
-              name={`description[${index}].width`}
-              placeholder="Width"
-              className="input input-bordered"
-              value={item.width === 0 ? "" : item.width}
-              onChange={(e) => updateItem(index, "width", e.target.value)}
-            />
-            <input
-              type="number"
-              name={`description[${index}].height`}
-              placeholder="Height"
-              className="input input-bordered"
-              value={item.height === 0 ? "" : item.height}
-              onChange={(e) => updateItem(index, "height", e.target.value)}
-            />
-            <input
-              type="number"
-              name={`description[${index}].weight`}
-              placeholder="Weight"
-              className="input input-bordered"
-              value={item.weight === 0 ? "" : item.weight}
-              onChange={(e) => updateItem(index, "weight", e.target.value)}
-            />
-          </div>
+      <div className="mt-4 p-4 border rounded-lg">
+        <div className="grid grid-cols-5 gap-2">
+          <label className="label">
+            <span className="label-text">Pieces</span>
+          </label>
+          <label className="label">
+            <span className="label-text">Length</span>
+          </label>
+          <label className="label">
+            <span className="label-text">Width</span>
+          </label>
+          <label className="label">
+            <span className="label-text">Height</span>
+          </label>
+          <label className="label">
+            <span className="label-text">Weight</span>
+          </label>
         </div>
-      ))}
-
-      <div className="mt-4 flex items-center gap-4">
-        <button type="button" className="btn btn-primary flex items-center gap-2" onClick={addItem}>
-          <span>+ Add another</span>
-        </button>
+        <div className="grid grid-cols-5 gap-2 mt-2">
+          <input
+            type="number"
+            name="pieces"
+            placeholder="Pieces"
+            className="input input-bordered"
+            value={pieces}
+            onChange={(e) => setPieces(Number(e.target.value))}
+          />
+          <input
+            type="number"
+            name="length"
+            placeholder="Length"
+            className="input input-bordered"
+            value={length}
+            onChange={(e) => setLength(Number(e.target.value))}
+          />
+          <input
+            type="number"
+            name="width"
+            placeholder="Width"
+            className="input input-bordered"
+            value={width}
+            onChange={(e) => setWidth(Number(e.target.value))}
+          />
+          <input
+            type="number"
+            name="height"
+            placeholder="Height"
+            className="input input-bordered"
+            value={height}
+            onChange={(e) => setHeight(Number(e.target.value))}
+          />
+          <input
+            type="number"
+            name="weight"
+            placeholder="Weight"
+            className="input input-bordered"
+            value={weight}
+            onChange={(e) => setWeight(Number(e.target.value))}
+          />
+        </div>
       </div>
 
       <div className="mt-4 flex items-center gap-4">
@@ -253,7 +262,7 @@ const BookingPage = () => {
         <div className="grid grid-cols-5 gap-4 text-center border-b pb-2">
           <div>
             <p className="text-sm text-gray-500">Pieces</p>
-            <p className="text-lg font-bold">{description.reduce((acc, item) => acc + item.pieces, 0)}</p>
+            <p className="text-lg font-bold">{pieces}</p>
           </div>
           <div>
             <p className="text-sm text-gray-500">Gross weight</p>
@@ -278,7 +287,11 @@ const BookingPage = () => {
             type="button"
             className="text-blue-500"
             onClick={() => {
-              setDescription([{ pieces: 0, length: 0, width: 0, height: 0, weight: 0 }]);
+              setPieces("");
+              setLength("");
+              setWidth("");
+              setHeight("");
+              setWeight("");
             }}
           >
             Clear all
