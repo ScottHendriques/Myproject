@@ -271,7 +271,7 @@ const StationCapabilities = () => {
           )}
         </div>
       )}
-    </div>
+    </div> 
   );
 };
 
