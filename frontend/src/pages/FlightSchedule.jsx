@@ -1,8 +1,9 @@
 import React, { useState } from "react";
+import { PlaneTakeoff, PlaneLanding } from "lucide-react";
 
 const FlightSchedule = () => {
-  const [departure, setDeparture] = useState("BOM");
-  const [arrival, setArrival] = useState("JFK");
+  const [departure, setDeparture] = useState("");
+  const [airline, setAirline] = useState("");
   const [date, setDate] = useState("2025-03-17");
   const [flights, setFlights] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -14,7 +15,7 @@ const FlightSchedule = () => {
     setFlights([]);
 
     const accessKey = import.meta.env.VITE_AVIATIONSTACK_API_KEY;
-    const url = `http://api.aviationstack.com/v1/flights?dep_iata=${departure}&arr_iata=${arrival}&flight_date=${date}&access_key=${accessKey}`;
+    const url = `http://api.aviationstack.com/v1/flightsFuture?iataCode=${departure}&type=departure&date=${date}&airline_iata=${airline}&access_key=${accessKey}`;
 
     try {
       const response = await fetch(url);
@@ -26,7 +27,7 @@ const FlightSchedule = () => {
         throw new Error("No flights found for the selected route.");
       }
 
-      setFlights(data.data.slice(0, 10)); 
+      setFlights(data.data.slice(0, 10)); // Display 10 flights
     } catch (error) {
       console.error("Error fetching flights:", error);
       setError(error.message || "Failed to fetch flights.");
@@ -36,7 +37,7 @@ const FlightSchedule = () => {
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-6 bg-white shadow-md rounded-lg">
+    <div className="max-w-4xl mx-auto p-6  shadow-md rounded-lg">
       <h2 className="text-2xl font-bold text-gray-800 mb-4">Flight Schedule</h2>
 
       {/* Input Fields */}
@@ -46,14 +47,14 @@ const FlightSchedule = () => {
           value={departure}
           onChange={(e) => setDeparture(e.target.value)}
           className="p-2 border rounded-md bg-black text-white"
-          placeholder="Departure IATA (e.g., BOM)"
+          placeholder="Departure IATA (e.g., AUH)"
         />
         <input
           type="text"
-          value={arrival}
-          onChange={(e) => setArrival(e.target.value)}
+          value={airline}
+          onChange={(e) => setAirline(e.target.value)}
           className="p-2 border rounded-md bg-black text-white"
-          placeholder="Arrival IATA (e.g., JFK)"
+          placeholder="Airline IATA (e.g., EY)"
         />
         <input
           type="date"
@@ -77,31 +78,29 @@ const FlightSchedule = () => {
       {/* Loading Indicator */}
       {loading && <p className="mt-4 text-gray-600">Loading flights...</p>}
 
-      {/* Flight Table */}
-      {flights.length > 0 && (
-        <table className="mt-6 w-full border-collapse border border-gray-300">
-          <thead>
-            <tr className="bg-gray-100">
-              <th className="border p-2 text-left font-semibold">Airline</th>
-              <th className="border p-2 text-left font-semibold">Flight Number</th>
-              <th className="border p-2 text-left font-semibold">Departure</th>
-              <th className="border p-2 text-left font-semibold">Arrival</th>
-              <th className="border p-2 text-left font-semibold">Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            {flights.map((flight, index) => (
-              <tr key={index} className="text-gray-700">
-                <td className="border p-2">{flight.airline?.name || "N/A"}</td>
-                <td className="border p-2">{flight.flight?.iata || "N/A"}</td>
-                <td className="border p-2">{flight.departure?.airport || "N/A"}</td>
-                <td className="border p-2">{flight.arrival?.airport || "N/A"}</td>
-                <td className="border p-2">{flight.flight_status || "N/A"}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      )}
+      {/* Flight Display */}
+      {flights.length > 0 && flights.map((flight, index) => (
+        <div key={index} className="mt-6 p-4 border rounded-lg shadow-md flex justify-between items-center">
+          <div className="text-center w-1/3">
+            <PlaneTakeoff className="text-2xl mx-auto text-gray-700" />
+            <p className="text-lg font-semibold">{flight.departure?.airport || "Unknown"}</p>
+            <p className="text-sm text-gray-600">{flight.departure?.iataCode || "---"}</p>
+            <p className="text-yellow-600 font-medium">{date}</p>
+            <p className="text-lg font-bold text-gray-800">{flight.departure?.scheduledTime || "--:--"}</p>
+          </div>
+          <div className="text-center w-1/3">
+            <p className="text-gray-600">Direct Flight</p>
+            <p className="text-sm font-medium">Journey Time: 03 hr 10 min</p>
+          </div>
+          <div className="text-center w-1/3">
+            <PlaneLanding className="text-2xl mx-auto text-gray-700" />
+            <p className="text-lg font-semibold">{flight.arrival?.airport || "Unknown"}</p>
+            <p className="text-sm text-gray-600">{flight.arrival?.iataCode || "---"}</p>
+            <p className="text-yellow-600 font-medium">{date}</p>
+            <p className="text-lg font-bold text-gray-800">{flight.arrival?.scheduledTime || "--:--"}</p>
+          </div>
+        </div>
+      ))}
     </div>
   );
 };
