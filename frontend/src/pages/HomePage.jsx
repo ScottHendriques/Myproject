@@ -50,7 +50,7 @@ const HomePage = () => {
   };
 
   return (
-    <div className="flex w-full h-screen">
+    <div className="flex w-full min-h-screen">
       {sections.map((section, index) => (
         <motion.div
           key={index}
