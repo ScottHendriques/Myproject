@@ -65,4 +65,25 @@ router.get("/airports", async (req,res) => {
     }
 });
 
+router.get("/airline/:iataCode", async (req,res) => {
+    const {iataCode} = req.params;
+
+    try {
+        const response = await axios.get(FLIGHTS_URL,{
+            params: {
+                access_key: API_KEY,
+                airline_iata: iataCode,
+            },
+        });
+
+        if(!response.data || !response.data.data || response.data.data.length === 0){
+            return res.status(404).json({error: `No flight data found for airline IATA Code: ${iataCode}.`});
+        }
+        res.json(response.data.data);
+    } catch (error) {
+        console.error("Error fetching flight data for airline", error,message);
+        res.status(500).json({error: "Internal server Error"});
+    }
+})
+
 export default router;

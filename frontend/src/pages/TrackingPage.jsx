@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import FlightMap from '../components/FlightMap';
 
 const TrackingPage = () => {
     const [flightNumber, setFlightNumber] = useState('');
@@ -12,6 +13,7 @@ const TrackingPage = () => {
         
         try {
             const response = await axios.get(`http://localhost:5001/api/aviation/flight/${flightNumber}`);
+            console.log("API Response:", response.data);
             setFlightData(response.data);
         } catch (err) {
             setError('Flight not found or an error occurred');
@@ -63,6 +65,13 @@ const TrackingPage = () => {
                         </div>
                     </div>
                 </div>
+            )}
+            {flightData && (
+                <FlightMap
+                    departureAirport={flightData.departure_airport}
+                    arrivalAirport={flightData.arrival_airport}
+                    status={flightData.status.toLowerCase()} // Pass status as lowercase
+                />
             )}
         </div>
     );
