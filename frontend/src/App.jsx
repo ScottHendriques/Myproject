@@ -19,6 +19,7 @@ import EmployeeLoginPage from './pages/EmployeeLoginPage.jsx';
 import Footer from './components/Footer.jsx';
 import AboutUs from './pages/AboutUs.jsx';
 import SelectFlight from './pages/SelectFlight.jsx';
+import Dashboard from './pages/Dashboard.jsx';
 
 
 const App = () => {
@@ -53,6 +54,7 @@ const App = () => {
         <Route path='/tracking' element={<TrackingPage/>}/>
         <Route path='/tracking/:flightNumber' element={<TrackingPage/>}/>
         <Route path='/flight-schedule' element={<FlightSchedule/>}/>
+        <Route path='/dashboard' element={<Dashboard/>}/>
         <Route path='/Station-Capabilities' element={<StationCapabilities/>}/>
         <Route path='/Aboutus' element={<AboutUs/>}/>
       </Routes>
