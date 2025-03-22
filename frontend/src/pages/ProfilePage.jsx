@@ -22,13 +22,15 @@ const ProfilePage = () => {
   };
 
   return (
-    <div className="min-h-screen pt-20">
-      <button
-        onClick={() => navigate("/managebookings")}
-        className="w-full mt-6 bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg transition"
-      >
-        Manage Bookings
-      </button>
+    <div className="min-h-screen flex-col items-center pt-20">
+      <div className="container w-full">
+        <button
+          onClick={() => navigate("/managebookings")}
+          className="w-60 mt-6 mx-auto flex items-center pl-10 bg-blue-600 hover:bg-blue-700 text-white  py-2 rounded-lg transition"
+        >
+          Manage Bookings
+        </button>
+      </div>
       <div className="max-w-2xl mx-auto p-4 py-8">
         <div className="bg-base-300 rounded-xl p-6 space-y-8">
           <div className="text-center">
