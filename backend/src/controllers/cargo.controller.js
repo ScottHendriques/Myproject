@@ -76,7 +76,7 @@ export const getTopDestinations = async (req, res) => {
     if (!mongoose.Types.ObjectId.isValid(userId)) {
       return res.status(400).json({ message: "Invalid user ID" });
     }
-    
+
     const topDestinations = await Booking.aggregate([
       { $match: { user: new mongoose.Types.ObjectId(userId) } }, 
       { $group: { _id: "$shippingTo", count: { $sum: 1 } } }, 
@@ -87,6 +87,23 @@ export const getTopDestinations = async (req, res) => {
     res.status(200).json(topDestinations);
   } catch (error) {
     console.error("Error fetching top destinations:", error);
+    res.status(500).json({ message: "Server error", error });
+  }
+};
+
+export const getTotalBookings = async (req, res) => {
+  const userId = req.params.userId;
+
+  try {
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+      return res.status(400).json({ message: "Invalid user ID" });
+    }
+
+    const totalBookings = await Booking.countDocuments({ user: userId });
+
+    res.status(200).json({ totalBookings });
+  } catch (error) {
+    console.error("Error fetching total bookings:", error);
     res.status(500).json({ message: "Server error", error });
   }
 };

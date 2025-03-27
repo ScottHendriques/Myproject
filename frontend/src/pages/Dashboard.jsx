@@ -12,6 +12,8 @@ const Dashboard = () => {
   const [loadingTopProducts, setLoadingTopProducts] = useState(true);
   const [topDestinations, setTopDestinations] = useState([]);
   const [loadingTopDestinations, setLoadingTopDestinations] = useState(true);
+  const [totalBookings, setTotalBookings] = useState(0);
+  const [loadingTotalBookings, setLoadingTotalBookings] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -67,15 +69,37 @@ const Dashboard = () => {
     fetchTopDestinations();
   }, [authUser]);
 
+  useEffect(() => {
+    const fetchTotalBookings = async () => {
+      if (!authUser || !authUser._id) return;
+
+      try {
+        const res = await axiosInstance.get(`/total-bookings/${authUser._id}`);
+        setTotalBookings(res.data.totalBookings);
+      } catch (error) {
+        console.error("Error fetching total bookings:", error);
+      } finally {
+        setLoadingTotalBookings(false);
+      }
+    };
+
+    fetchTotalBookings();
+  }, [authUser]);
+
   return (
     <div className="p-6 min-h-screen grid gap-4 grid-cols-1 md:grid-cols-3 lg:grid-cols-4">
       {/* Booking Count Section */}
       <div className="md:col-span-2 lg:col-span-2 p-4 bg-white shadow-md rounded-lg">
         <div className="p-4">
           <h3 className="text-lg font-semibold">Booking count</h3>
-          <div className="flex items-center justify-between mt-4">
-            <div className="text-gray-500">2024 YTD</div>
-          </div>
+          {loadingTotalBookings ? (
+            <p className="text-gray-500 mt-2">Loading...</p>
+          ) : (
+            <div className="text-center mt-4">
+              <p className="text-6xl font-bold text-yellow-600">{totalBookings}</p>
+              <p className="text-lg font-medium text-gray-500">Freighters</p>
+            </div>
+          )}
         </div>
       </div>
 
@@ -124,9 +148,9 @@ const Dashboard = () => {
       </div>
 
       {/* Tracking Section */}
-      <div className="p-4 flex flex-col items-center bg-white shadow-md rounded-lg">
-        <div className="p-4 text-center">
-          <h3 className="text-lg font-semibold">Track your flights</h3>
+      <div className="p-4 bg-white shadow-md rounded-lg">
+        <div className="p-4">
+          <h3 className="text-lg font-semibold">Track you flights</h3>
           <div className="flex justify-center my-4">
             <Plane size={40} className="text-gray-500" />
           </div>
