@@ -47,7 +47,7 @@ const AdminCusServ = () => {
     const templateParams = {
       name: selectedFeedback.name,
       title: selectedFeedback.category,
-      to_email: selectedFeedback.email,
+      email: selectedFeedback.email,
       message: `Dear ${selectedFeedback.name},\n\nThank you for your feedback. We have received your message:\n\n"${selectedFeedback.message}"\n\nWe will get back to you shortly.\n\nBest regards,\nCustomer Service Team`,
     };
 
