@@ -24,6 +24,7 @@ import ManageBookings from './pages/ManageBookings.jsx';
 import PaymentPage from './pages/Payment.jsx';
 import Success from './components/PaymentSuccess.jsx';
 import Cancel from './components/PaymentCancel.jsx';
+import CustomerService from './pages/CustomerService.jsx';
 
 
 const App = () => {
@@ -64,6 +65,7 @@ const App = () => {
         <Route path='/dashboard' element={<Dashboard/>}/>
         <Route path='/manage-bookings' element={<ManageBookings/>}/>
         <Route path='/Station-Capabilities' element={<StationCapabilities/>}/>
+        <Route path='/help' element={<CustomerService/>}/>
         <Route path='/Aboutus' element={<AboutUs/>}/>
       </Routes>
       </main>

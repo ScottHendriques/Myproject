@@ -7,6 +7,7 @@ import { connectDB } from "./lib/db.js";
 import authRoutes from "./routes/auth.route.js";
 import aviationRoutes from "./routes/aviation.routes.js";
 import cargoRoutes from "./routes/cargo.route.js";
+import feedbackRoutes from "./controllers/custserv.controller.js";
 
 dotenv.config();
 const API_KEY = process.env.AVIATIONSTACK_API_KEY;
@@ -25,6 +26,7 @@ app.use(cors({
 app.use("/api/auth", authRoutes);
 app.use("/api/aviation", aviationRoutes);
 app.use("/api", cargoRoutes);
+app.use("/api/feedback", feedbackRoutes);
 
 app.listen(PORT, () => {
   console.log("server is running on PORT:" + PORT);
