@@ -21,6 +21,9 @@ import AboutUs from './pages/AboutUs.jsx';
 import SelectFlight from './pages/SelectFlight.jsx';
 import Dashboard from './pages/Dashboard.jsx';
 import ManageBookings from './pages/ManageBookings.jsx';
+import PaymentPage from './pages/Payment.jsx';
+import Success from './components/PaymentSuccess.jsx';
+import Cancel from './components/PaymentCancel.jsx';
 
 
 const App = () => {
@@ -52,6 +55,9 @@ const App = () => {
         <Route path='/profile' element={authUser ? <ProfilePage/> : <Navigate to="/login"/>}/>
         <Route path='/booking' element={authUser ? <BookingPage/> : <Navigate to='/login'/>}/>
         <Route path='/select' element={authUser ? <SelectFlight/> : <Navigate to='/login'/>}/>
+        <Route path='/payment' element={authUser ? <PaymentPage/> : <Navigate to='/login'/>}/>
+        <Route path='/payment-success' element={<Success/>}/>
+        <Route path='/payment-cancel' element={<Cancel/>}/>
         <Route path='/tracking' element={<TrackingPage/>}/>
         <Route path='/tracking/:flightNumber' element={<TrackingPage/>}/>
         <Route path='/flight-schedule' element={<FlightSchedule/>}/>

@@ -11,4 +11,5 @@ router.get("/top-products/:userId", getTopProducts);
 router.get("/top-destinations/:userId", getTopDestinations);
 router.get("/total-bookings/:userId", getTotalBookings);
 
+
 export default router;
