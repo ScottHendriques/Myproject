@@ -27,4 +27,14 @@ router.post("/submitFeedback", async (req, res) => {
   }
 });
 
+router.get("/getAllFeedback", async (req, res) => {
+    try {
+      const feedbacks = await Feedback.find(); // Fetch all feedback from the database
+      res.status(200).json(feedbacks);
+    } catch (error) {
+      console.error("Error fetching feedback:", error.message);
+      res.status(500).json({ message: "Internal server error." });
+    }
+  });
+
 export default router;

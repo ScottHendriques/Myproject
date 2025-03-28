@@ -25,6 +25,7 @@ import PaymentPage from './pages/Payment.jsx';
 import Success from './components/PaymentSuccess.jsx';
 import Cancel from './components/PaymentCancel.jsx';
 import CustomerService from './pages/CustomerService.jsx';
+import AdminCusServ from './components/AdminCusServ.jsx';
 
 
 const App = () => {
@@ -50,6 +51,7 @@ const App = () => {
         <Route path='/' element={authUser ? <HomePage/> : <Navigate to = "/login"/>}/>
         <Route path='/employee-login' element={<EmployeeLoginPage/>}/>
         <Route path='/admin' element={<AdminPage/>}/>
+        <Route path='/admin/customer-service' element={<AdminCusServ/>}/>
         <Route path='/signup' element={!authUser ? <SignUpPage/> : <Navigate to="/"/>}/>
         <Route path='/login' element={!authUser ? <LoginPage/> : <Navigate to="/"/>}/>
         <Route path='/settings' element={ <SettingsPage/>}/>
