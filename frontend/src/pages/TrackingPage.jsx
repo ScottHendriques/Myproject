@@ -70,7 +70,7 @@ const TrackingPage = () => {
                 <FlightMap
                     departureAirport={flightData.departure_airport}
                     arrivalAirport={flightData.arrival_airport}
-                    status={flightData.status.toLowerCase()} // Pass status as lowercase
+                    status={flightData.status.toLowerCase()} 
                 />
             )}
         </div>

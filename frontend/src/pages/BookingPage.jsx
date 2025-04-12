@@ -26,7 +26,7 @@ const BookingPage = () => {
 
   const calculateSummary = () => {
     const grossWeight = pieces * weight;
-    const volume = (length * width * height * pieces) / 1000000;
+    const volume = (length * width * height * pieces) / 6000;
     const density = volume ? (grossWeight / volume).toFixed(2) : 0;
     const chargeableWeight = Math.max(grossWeight, volume * 167).toFixed(2);
 

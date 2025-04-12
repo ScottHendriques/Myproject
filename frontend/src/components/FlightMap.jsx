@@ -3,29 +3,36 @@ import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import axios from "axios";
+import img1 from "../images/plane-icon-png.png";
+import img2 from "../images/location-png.png";
+
+// Icons
+const airplaneIcon = L.icon({
+  iconUrl: img1,
+  iconSize: [50, 50],
+  iconAnchor: [25, 25],
+});
+
+const locationIcon = L.icon({
+  iconUrl: img2,
+  iconSize: [30, 30],
+  iconAnchor: [15, 30],
+});
 
 const FlightMap = ({ departureAirport, arrivalAirport, status }) => {
   const [departureCoords, setDepartureCoords] = useState(null);
   const [arrivalCoords, setArrivalCoords] = useState(null);
 
-  const airplaneIcon = L.icon({
-    iconUrl: "https://cdn-icons-png.flaticon.com/512/206/206798.png",
-    iconSize: [50, 50],
-  });
-
   const fetchCoordinates = async (airportName, setCoords) => {
     try {
-      const response = await axios.get(
-        `https://nominatim.openstreetmap.org/search`,
-        {
-          params: {
-            q: airportName,
-            format: "json",
-          },
-        }
-      );
+      const response = await axios.get("https://nominatim.openstreetmap.org/search", {
+        params: {
+          q: airportName,
+          format: "json",
+        },
+      });
 
-      if (response.data && response.data.length > 0) {
+      if (response.data?.length > 0) {
         const { lat, lon } = response.data[0];
         setCoords([parseFloat(lat), parseFloat(lon)]);
       }
@@ -35,41 +42,46 @@ const FlightMap = ({ departureAirport, arrivalAirport, status }) => {
   };
 
   useEffect(() => {
-    if (departureAirport) {
-      fetchCoordinates(departureAirport, setDepartureCoords);
-    }
-    if (arrivalAirport) {
-      fetchCoordinates(arrivalAirport, setArrivalCoords);
-    }
+    if (departureAirport) fetchCoordinates(departureAirport, setDepartureCoords);
+    if (arrivalAirport) fetchCoordinates(arrivalAirport, setArrivalCoords);
   }, [departureAirport, arrivalAirport]);
 
-  if (!departureCoords || !arrivalCoords) {
-    return <p>Loading map...</p>;
-  }
+  if (!departureCoords || !arrivalCoords) return <p>Loading map...</p>;
+
+  // Normalize status
+  const flightStatus = status?.toLowerCase();
 
   return (
     <MapContainer
-      center={status === "scheduled" ? departureCoords : arrivalCoords}
+      center={flightStatus === "scheduled" ? departureCoords : arrivalCoords}
       zoom={5}
       style={{ height: "500px", width: "100%" }}
     >
       <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-      <Marker position={departureCoords} icon={airplaneIcon}>
-        <Popup>{departureAirport}</Popup>
+
+      {/* Departure Marker */}
+      <Marker
+        position={departureCoords}
+        icon={flightStatus === "scheduled" ? airplaneIcon : locationIcon}
+      >
+        <Popup>
+          {flightStatus === "scheduled"
+            ? `Flight is scheduled to depart from ${departureAirport}`
+            : departureAirport}
+        </Popup>
       </Marker>
-      <Marker position={arrivalCoords} icon={airplaneIcon}>
-        <Popup>{arrivalAirport}</Popup>
+
+      {/* Arrival Marker */}
+      <Marker
+        position={arrivalCoords}
+        icon={flightStatus === "landed" ? airplaneIcon : locationIcon}
+      >
+        <Popup>
+          {flightStatus === "landed"
+            ? `Flight has landed at ${arrivalAirport}`
+            : arrivalAirport}
+        </Popup>
       </Marker>
-      {status === "scheduled" && (
-        <Marker position={departureCoords} icon={airplaneIcon}>
-          <Popup>Flight is scheduled to depart from {departureAirport}</Popup>
-        </Marker>
-      )}
-      {status === "landed" && (
-        <Marker position={arrivalCoords} icon={airplaneIcon}>
-          <Popup>Flight has landed at {arrivalAirport}</Popup>
-        </Marker>
-      )}
     </MapContainer>
   );
 };

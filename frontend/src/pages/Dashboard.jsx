@@ -89,7 +89,7 @@ const Dashboard = () => {
   return (
     <div className="p-6 min-h-screen grid gap-4 grid-cols-1 md:grid-cols-3 lg:grid-cols-4">
       {/* Booking Count Section */}
-      <div className="md:col-span-2 lg:col-span-2 p-4 bg-white shadow-md rounded-lg">
+      <div className="md:col-span-2 lg:col-span-2 p-4 shadow-md rounded-lg border-2 border-gray-300">
         <div className="p-4">
           <h3 className="text-lg font-semibold">Booking count</h3>
           {loadingTotalBookings ? (
@@ -102,9 +102,9 @@ const Dashboard = () => {
           )}
         </div>
       </div>
-
+  
       {/* Top Product Section */}
-      <div className="p-4 bg-white shadow-md rounded-lg">
+      <div className="p-4 shadow-md rounded-lg border-2 border-gray-300">
         <div className="p-4">
           <h3 className="text-lg font-semibold">Top Products</h3>
           {loadingTopProducts ? (
@@ -124,9 +124,9 @@ const Dashboard = () => {
           )}
         </div>
       </div>
-
+  
       {/* Top Destination Section */}
-      <div className="p-4 bg-white shadow-md rounded-lg">
+      <div className="p-4 shadow-md rounded-lg border-2 border-gray-300">
         <div className="p-4">
           <h3 className="text-lg font-semibold">Top destinations</h3>
           {loadingTopDestinations ? (
@@ -146,11 +146,11 @@ const Dashboard = () => {
           )}
         </div>
       </div>
-
+  
       {/* Tracking Section */}
-      <div className="p-4 bg-white shadow-md rounded-lg">
-        <div className="p-4">
-          <h3 className="text-lg font-semibold">Track you flights</h3>
+      <div className="p-4 flex flex-col items-center shadow-md rounded-lg border-2 border-gray-300">
+        <div className="p-4 text-center">
+          <h3 className="text-lg font-semibold">Track your flights</h3>
           <div className="flex justify-center my-4">
             <Plane size={40} className="text-gray-500" />
           </div>
@@ -159,9 +159,9 @@ const Dashboard = () => {
           </button>
         </div>
       </div>
-
+  
       {/* Recent Booking Section */}
-      <div className="md:col-span-2 p-4 bg-white shadow-md rounded-lg">
+      <div className="md:col-span-2 p-4 shadow-md rounded-lg border-2 border-gray-300">
         <div className="p-4">
           <h3 className="text-lg font-semibold">Recent bookings</h3>
           <button
@@ -193,9 +193,9 @@ const Dashboard = () => {
           )}
         </div>
       </div>
-
+  
       {/* New Booking Section */}
-      <div className="p-4 flex flex-col items-center bg-white shadow-md rounded-lg">
+      <div className="p-4 flex flex-col items-center shadow-md rounded-lg border-2 border-gray-300">
         <div className="p-4 text-center">
           <h3 className="text-lg font-semibold">New booking</h3>
           <div className="flex justify-center my-4">
