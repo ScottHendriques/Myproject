@@ -23,6 +23,9 @@ const BookingPage = () => {
   const [promoType, setPromoType] = useState("");
   const [item, setItem] = useState("");
   const [totalWeight, setTotalWeight] = useState(0);
+  const [promoCode, setPromoCode] = useState("");
+  const [specialHandlingCode, setSpecialHandlingCode] = useState("");
+
 
   const calculateSummary = () => {
     const grossWeight = pieces * weight;
@@ -35,6 +38,28 @@ const BookingPage = () => {
 
   const { grossWeight, volume, density, chargeableWeight } = calculateSummary();
 
+  const getFinalPrice = () => {
+    let basePrice = 190; // default price for America
+
+    // Special handling for Admin
+    if (authUser?.username === "AdminMUC" && specialHandlingCode?.trim() !== "") {
+      return 0.0;
+    }
+
+    // Promo Code Discount
+    const promo = promoCode.trim().toUpperCase();
+    if (promo === "CARGO20") {
+      return (basePrice * 0.8).toFixed(2); // 20% off
+    }
+    if (promo === "CARGO10") {
+      return (basePrice * 0.9).toFixed(2); // 10% off
+    }
+    if (promo === "FREESHIP") {
+      return (basePrice * 0.7).toFixed(2); // 30% off
+    }
+    return basePrice.toFixed(2);
+  };
+  
   const handleUpload = async (e) => {
     e.preventDefault();
     if (!authUser || !authUser._id) {
@@ -61,7 +86,10 @@ const BookingPage = () => {
       width: parseFloat(width),
       height: parseFloat(height),
       weight: parseFloat(weight),
-      user: authUser._id, // Include the user ID in the payload
+      user: authUser._id, 
+      promoCode,
+      specialHandlingCode,
+      finalprice: getFinalPrice(),
     };
 
     console.log("Payload being sent:", payload);
@@ -83,8 +111,6 @@ const BookingPage = () => {
       const data = await res.json();
       console.log("Upload successful!", data);
       toast.success("Booking created successfully!");
-
-      // Optionally reset form fields
     } catch (error) {
       console.error("Upload error:", error);
       toast.error("Failed to create booking. Please try again.");
@@ -92,7 +118,22 @@ const BookingPage = () => {
   };
 
   const handleContinue = () => {
-    navigate('/select', { state: { bookingData: { shippingFrom, shippingTo, shippingDate, item, totalWeight, grossWeight, pieces } } });
+    navigate('/select', { 
+      state: { 
+        bookingData: { 
+          shippingFrom, 
+          shippingTo, 
+          shippingDate, 
+          item, 
+          totalWeight, 
+          grossWeight, 
+          pieces,
+          promoCode,
+          specialHandlingCode,
+          finalprice: getFinalPrice(),
+        },
+      },
+    });
   };
 
   return (
@@ -149,6 +190,8 @@ const BookingPage = () => {
               name="specialHandlingCodes"
               placeholder="Additional special handling codes"
               className="input input-bordered pl-10 w-full"
+              value={specialHandlingCode}
+              onChange={(e) => setSpecialHandlingCode(e.target.value)}
             />
           </div>
         </div>
@@ -253,6 +296,8 @@ const BookingPage = () => {
             name="promoCode"
             placeholder="Enter promo code (optional)"
             className="input input-bordered w-full"
+            value={promoCode}
+            onChange={(e) => setPromoCode(e.target.value)}
           />
         </div>
       )}

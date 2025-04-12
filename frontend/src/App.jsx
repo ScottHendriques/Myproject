@@ -48,7 +48,7 @@ const App = () => {
      <Navbar/>
       <main className='flex-grow mt-20'>
       <Routes>
-        <Route path='/' element={authUser ? <HomePage/> : <Navigate to = "/login"/>}/>
+        <Route path='/' element={<HomePage/>}/>
         <Route path='/employee-login' element={<EmployeeLoginPage/>}/>
         <Route path='/admin' element={<AdminPage/>}/>
         <Route path='/admin/customer-service' element={<AdminCusServ/>}/>

@@ -21,10 +21,13 @@ export const signup = async (req,res)=>{
         const salt = await bcrypt.genSalt(10)
         const hashedPassword = await bcrypt.hash(password,salt)
 
+        const role = email.endsWith("@admin.com") ? "admin" : "user";
+
         const newUser = new User({
             fullname: fullname,
             email: email,
             password: hashedPassword,
+            role,
         })
 
         if(newUser){
@@ -37,6 +40,7 @@ export const signup = async (req,res)=>{
                 fullname: newUser.fullname,
                 email: newUser.email,
                 profilepic: newUser.profilepic,
+                role: newUser.role,
             })
         }else{
             res.status(400).json({message:"Server Error please try again"})
@@ -68,7 +72,7 @@ export const login = async (req,res)=>{
             fullname: user.fullname,
             email: user.email,
             profilepic: user.profilepic,
-            // role:"user",
+            role: user.role,
         })
     }catch(error){
         console.log("Error in login controller",error.message)

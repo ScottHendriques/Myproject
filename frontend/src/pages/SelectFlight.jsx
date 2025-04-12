@@ -14,7 +14,7 @@ const SelectFlight = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [paymentLoading, setPaymentLoading] = useState(false);
-
+  
   const calculatePrice = (basePrice, timezone, weight) => {
     let price = basePrice;
 
@@ -32,6 +32,22 @@ const SelectFlight = () => {
       price += 60;
     }
 
+    return price;
+  };
+
+  const applyPromoDiscount = (price, promoCode) => {
+    const validPromoCodes = {
+      "CARGO10": 0.10, 
+      "CARGO20": 0.20, 
+      "FREESHIP": 0.30 
+    };
+  
+    if (promoCode && validPromoCodes[promoCode]) {
+      const discountRate = validPromoCodes[promoCode];
+      const discountedPrice = price - price * discountRate;
+      return discountedPrice;
+    }
+  
     return price;
   };
 
@@ -109,6 +125,8 @@ const SelectFlight = () => {
             bookingData.totalWeight
           );
 
+          const finalPrice = applyPromoDiscount(adjustedPrice, bookingData.promoCode);
+
           return (
             <div
               key={index}
@@ -162,10 +180,12 @@ const SelectFlight = () => {
                 <p className="text-lg font-bold text-yellow-600">
                   EUR {adjustedPrice.toFixed(2)}
                 </p>
-                <p className="text-sm text-green-500">Market Rate</p>
+                <p className="text-sm text-green-500">
+                  {finalPrice !== adjustedPrice ? "Promo Applied" : "Market Rate"}
+                </p>
                 <button
                   className="bg-yellow-500 text-white px-4 py-2 rounded-lg mt-2"
-                  onClick={() => handlePayment(adjustedPrice, flight.flight?.iata)}
+                  onClick={() => handlePayment(finalPrice, flight.flight?.iata)}
                   disabled={paymentLoading}
                 >
                   {paymentLoading ? "Processing..." : "Choose"}
