@@ -21,11 +21,12 @@ import AboutUs from './pages/AboutUs.jsx';
 import SelectFlight from './pages/SelectFlight.jsx';
 import Dashboard from './pages/Dashboard.jsx';
 import ManageBookings from './pages/ManageBookings.jsx';
-import PaymentPage from './pages/Payment.jsx';
-import Success from './components/PaymentSuccess.jsx';
-import Cancel from './components/PaymentCancel.jsx';
+import PaymentPage from './pages/paymentPage.jsx';
+import StripePaymentPage from './pages/StripePayment.jsx';
+import BookingConfirmation from './pages/BookingConfirmation.jsx';
 import CustomerService from './pages/CustomerService.jsx';
 import AdminCusServ from './components/AdminCusServ.jsx';
+import StationInput from './pages/StationInput.jsx';
 
 
 const App = () => {
@@ -59,16 +60,18 @@ const App = () => {
         <Route path='/booking' element={authUser ? <BookingPage/> : <Navigate to='/login'/>}/>
         <Route path='/select' element={authUser ? <SelectFlight/> : <Navigate to='/login'/>}/>
         <Route path='/payment' element={authUser ? <PaymentPage/> : <Navigate to='/login'/>}/>
-        <Route path='/payment-success' element={<Success/>}/>
-        <Route path='/payment-cancel' element={<Cancel/>}/>
+        <Route path="/stripe-payment" element={authUser ? <StripePaymentPage /> : <Navigate to="/login" />} />
+        <Route path="/booking-confirmation" element={authUser ? <BookingConfirmation /> : <Navigate to="/login" />} />
         <Route path='/tracking' element={<TrackingPage/>}/>
         <Route path='/tracking/:flightNumber' element={<TrackingPage/>}/>
         <Route path='/flight-schedule' element={<FlightSchedule/>}/>
         <Route path='/dashboard' element={<Dashboard/>}/>
         <Route path='/manage-bookings' element={<ManageBookings/>}/>
         <Route path='/Station-Capabilities' element={<StationCapabilities/>}/>
+        <Route path='/Station-Input' element={<StationInput/>}/>
+        <Route path='/admin-dashboard' element={<Dashboard/>}/>
         <Route path='/help' element={<CustomerService/>}/>
-        <Route path='/Aboutus' element={<AboutUs/>}/>
+        <Route path='/Aboutus' element={<AboutUs/>}/> 
       </Routes>
       </main>
       <Footer/>

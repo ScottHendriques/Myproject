@@ -25,37 +25,37 @@ const Navbar = () => {
 
             {/* Navigation Links */}
             <div className="flex items-center gap-4">
-              {authUser?.role === "user" && (
-                <>
-                  <Link to={"/Station-Capabilities"} className="btn btn-sm gap-2 transition-colors">
-                    <Landmark className="w-5 h-5" />
-                    <span className="hidden sm:inline">Station Capabilities</span>
-                  </Link>
+              {/* Station Capabilities Link */}
+              <Link
+                to={authUser?.role === "admin" ? "/Station-Input" : "/Station-Capabilities"}
+                className="btn btn-sm gap-2 transition-colors"
+              >
+                <Landmark className="w-5 h-5" />
+                <span className="hidden sm:inline">Station Capabilities</span>
+              </Link>
 
-                  <Link to={"/Aboutus"} className="btn btn-sm gap-2 transition-colors">
-                    <Info className="w-5 h-5" />
-                    <span className="hidden sm:inline">About Us</span>
-                  </Link>
-                </>
-              )}
+              {/* Conditional Link: About Us (user) or Customer Service (admin) */}
+              {authUser?.role === "user" ? (
+                <Link to="/Aboutus" className="btn btn-sm gap-2 transition-colors">
+                  <Info className="w-5 h-5" />
+                  <span className="hidden sm:inline">About Us</span>
+                </Link>
+              ) : authUser?.role === "admin" ? (
+                <Link to="/admin/customer-service" className="btn btn-sm gap-2 transition-colors">
+                  <Headphones className="w-5 h-5" />
+                  <span className="hidden sm:inline">Customer Service</span>
+                </Link>
+              ) : null}
 
-              {authUser?.role === "admin" && (
-                <>
-                  <Link to={"/help"} className="btn btn-sm gap-2 transition-colors">
-                    <Headphones className="w-5 h-5" />
-                    <span className="hidden sm:inline">Customer Service</span>
-                  </Link>
-                </>
-              )}
-
-              <Link to={"/settings"} className="btn btn-sm gap-2 transition-colors">
+              {/* Common Links */}
+              <Link to="/settings" className="btn btn-sm gap-2 transition-colors">
                 <Settings className="w-5 h-5" />
                 <span className="hidden sm:inline">Settings</span>
               </Link>
 
               {authUser && (
                 <>
-                  <Link to={"/profile"} className="btn btn-sm gap-2">
+                  <Link to="/profile" className="btn btn-sm gap-2">
                     <User className="size-5" />
                     <span className="hidden sm:inline">Profile</span>
                   </Link>

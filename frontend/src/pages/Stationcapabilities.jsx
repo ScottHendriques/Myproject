@@ -1,190 +1,87 @@
-import React, { useState } from "react";
-import { useThemeStore } from "@/store/useThemeStore";
+import React, { useState, useEffect } from "react";
+import { axiosInstance } from "../lib/axios";
 import { MapPin, Phone, Mail, Globe, Clock, User } from "lucide-react";
 
-const data = {
-  UAE: {
-    states: {
-      "Abu Dhabi": {
-        agent: "Etihad Airport Services (EAS)",
-        location: "Cargo Terminal, Abu Dhabi International Airport",
-        phone: "+971 2 505 4721",
-        email: "cargosd@eas.co.ae",
-        hours: "Open 12:00 AM - 11:59 PM",
-        website: "https://www.etihad.com",
-        contacts: [
-          {
-            name: "Huda Abbas Mohamed Bahaj",
-            title: "Area Manager Cargo",
-            phone: "02 - 5112108",
-            email: "hbahaj@etihad.ae",
-            address: "Etihad Airways Headquarters Khalifa City A",
-            website: "www.etihadcargo.com",
-            hours: "Open 08:00 AM - 05:00 PM",
-          },
-          {
-            name: "Rizza Jebulan",
-            title: "Key Account Officer",
-            phone: "+971 -02-5116823",
-            email: "rjebulan@etihad.ae",
-            address: "Etihad Airways Headquarters Khalifa City A",
-            website: "www.etihadcargo.com",
-            hours: "Open 08:00 AM - 05:00 PM",
-          },
-          {
-            name: "Chris Eddam Curado Po",
-            title: "VIP Desk",
-            phone: "02-5511183",
-            email: "CEPo@etihad.ae",
-            address: "Etihad Airways Headquarters Khalifa City A",
-            website: "www.etihadcargo.com",
-            hours: "Open 08:00 AM - 05:00 PM",
-          },
-        ],
-      },
-      "Dubai": {
-        agent: "Dnata",
-        location: "Airport Road, Dubai",
-        phone: "+971 4 2111111",
-        email: "dnatacargodxb@dnata.com",
-        website: "www.dnata.com/en/global-network/united-arab-emirates",
-        hours: "Open 12:00 AM - 11:59 PM",
-        contacts: [
-          {
-            name: "Rajiv Kumar / Samina Khan",
-            title: "Sales Managers",
-            phone: "+971 02 5990099, +971 4 4072273",
-            email: "DXBcargosales@etihad.ae",
-            address: "Mazaya Centre Sheikh Zayed road.",
-            website: "www.etihadcargo.com",
-            hours: "Open 09:00 AM - 05:00 PM",
-          },
-        ],
-      },
-      "Sharjah": {
-        agent: "Cargo Operations Manager",
-        location: "Sharjah",
-        phone: "+9715141173, +971501166258",
-        email: "cgopsmgr@sharjahaviation.com",
-        website: "www.sharjahop/en/global-network/united-arab-emirates",
-        hours: "Open 12:00 AM - 11:59 PM",
-        contacts: [
-          {
-            name: "Jamshad Gull (export) / Tariq Al Mahri (import)",
-            title: "Cargo Representatives",
-            phone: "+971 02 5990099, +971 4 4072273",
-            email: "DXBcargosales@etihad.ae, TAlmahri@etihad.ae",
-            address: "Mazaya Centre Sheikh Zayed road.",
-            website: "www.etihadcargo.com",
-            hours: "Open 09:00 AM - 05:00 PM",
-          },
-        ],
-      },
-    },
-  },
-  India: {
-    states: {
-      "Mumbai": {
-        agent: "Mumbai International Airport Limited",
-        location: "Air Cargo Complex , Sahar , Andheri (East) , Mumbai 400 099",
-        phone: "+91 7506025997, +91 9167213667",
-        email: "Export.EYmial@gvk.com, import.eymial@gvk.com",
-        website: "www.mialiteworld.gvk.com",
-        hours: "Open 12:00 AM - 11:59 PM",
-        contacts: [
-          {
-            name: "AKSHAY BANGAR",
-            title: "Account Manager (Etihad Cargo)",
-            phone: "9821351265",
-            email: "abangar@etihad.ae",
-            address: "Unit No 902, 9th Floor,Antariksh Thakur House, Makwana Road, Marol, Andheri (East), Mumbai 400059, India",
-            website: "www.etihadcargo.com",
-            hours: "Open 09:30 AM - 06:30 PM",
-          },
-          {
-            name: "ASIM SAYED",
-            title: "Country Manager",
-            phone: "9867380384",
-            email: "asayed@etihad.ae",
-            address: "Unit No 902, 9th Floor,Antariksh Thakur House, Makwana Road, Marol, Andheri (East), Mumbai 400059, India",
-            website: "www.etihadcargo.com",
-            hours: "Open 09:00 AM - 05:30 PM",
-          },
-        ],
-      },
-      "Bengaluru": {
-        agent: "WFS (Bengaluru) Private Limited",
-        location: "Administration Block, Kempegowda International Airport, Devanahalli, Bengaluru",
-        phone: "+91 9538100095",
-        email: "Dmimport.blr@wfs.aero",
-        website: "https://www.wfs.aero/locations/bangalore-india/",
-        hours: "Open 12:00 AM - 11:59 PM",
-        contacts: [
-          {
-            name: "Uday Kumar",
-            title: "Sales Manager – Bengaluru",
-            phone: "+91 80 2768 8393",
-            email: "Uputtaswamygowda@etihad.ae",
-            address: "#202, 2nd Floor, WFS (Bangalore) Pvt Ltd, Kempegowda International Airport, Bangalore-560300",
-            website: "www.etihadcargo.com",
-            hours: "Open 09:00 AM - 05:30 PM",
-          },
-        ],
-      },
-      "Thiruvananthapuram": {
-        agent: "AIR INDIA SATS AIRPORT SERVICE PVT LTD",
-        location: "1st floor Panachamoottil Square, Airport Rd, Vallakadavu, Thiruvananthapuram",
-        phone: "91 471 2461900, 91 471 2505161",
-        email: "eytrv@avscargo.com, Cargooa.Trv@aisats.in, Cargosvcs.trv@aisats.in",
-        website: "www.aisats.in",
-        hours: "Open 09:00 AM - 06:00 PM",
-        contacts: [
-          {
-            name: "Asim Rizvi Sayed",
-            title: "Cargo Country Manager India",
-            phone: "+919 86 7380384",
-            email: "asayed@etihad.ae",
-            address: "Etihad Cargo Unit no 902, 9th Floor, Antariksh Bldg, Makwana Rd, Marol, Andheri East, Mumbai- 400059",
-            website: "www.etihadcargo.com",
-            hours: "Open 09:00 AM - 05:30 PM",
-          },
-        ],
-      },
-    },
-  },
-};
-
 const StationCapabilities = () => {
-  const { theme } = useThemeStore();
-  const [country, setCountry] = useState("UAE");
-  const [state, setState] = useState("Abu Dhabi");
+  const [countries, setCountries] = useState([]);
+  const [states, setStates] = useState([]);
+  const [selectedCountry, setSelectedCountry] = useState("");
+  const [selectedState, setSelectedState] = useState("");
+  const [station, setStation] = useState(null);
+  const [error, setError] = useState("");
 
-  const availableStates = Object.keys(data[country].states);
-  const stationInfo = data[country].states[state];
+  // Fetch countries
+  useEffect(() => {
+    const fetchCountries = async () => {
+      try {
+        const response = await axiosInstance.get("/stations/countries");
+        setCountries(response.data.countries || []);
+      } catch (err) {
+        setError("Failed to fetch countries");
+      }
+    };
+    fetchCountries();
+  }, []);
+
+  // Fetch states when country changes
+  useEffect(() => {
+    if (selectedCountry) {
+      const fetchStates = async () => {
+        try {
+          const response = await axiosInstance.get("/stations/states", {
+            params: { country: selectedCountry },
+          });
+          setStates(response.data.states || []);
+          setSelectedState(""); // Reset state when country changes
+          setStation(null); // Clear station data
+        } catch (err) {
+          setError("Failed to fetch states");
+        }
+      };
+      fetchStates();
+    }
+  }, [selectedCountry]);
+
+  // Fetch station data when state changes
+  useEffect(() => {
+    if (selectedCountry && selectedState) {
+      const fetchStation = async () => {
+        try {
+          const response = await axiosInstance.get("/stations", {
+            params: { country: selectedCountry, state: selectedState },
+          });
+          setStation(response.data.station || null);
+          setError("");
+        } catch (err) {
+          setError("Station not found");
+          setStation(null);
+        }
+      };
+      fetchStation();
+    }
+  }, [selectedCountry, selectedState]);
 
   return (
-    <div className="flex flex-col items-center mt-10 p-10 min-h-screen transition-colors bg-base-100 text-base-content w-full">
+    <div className="flex flex-col items-center mt-10 p-10 min-h-screen  ">
       <h2 className="text-3xl font-light">Global</h2>
       <h1 className="text-5xl italic font-semibold">station capabilities</h1>
       <h3 className="text-xl font-bold mt-6">Find a cargo office</h3>
-      <p className="text-center max-w-4xl mt-2">
-        Learn more about the capabilities of our airports and stations around the world.
+      <p className="mt-2 ">
+        Find a cargo office. Learn more about the capabilities of our airports and stations around the world.
       </p>
 
-      <div className="mt-6 space-y-4 w-96">
+      <div className="mt-6 w-full max-w-2xl space-y-4">
         <div className="form-control">
           <label className="label">Country</label>
           <select
-            className="select select-bordered rounded-2xl w-full"
-            value={country}
-            onChange={(e) => {
-              setCountry(e.target.value);
-              setState(Object.keys(data[e.target.value].states)[0]);
-            }}
+            value={selectedCountry}
+            onChange={(e) => setSelectedCountry(e.target.value)}
+            className="select select-bordered rounded-2xl w-full bg-gray-800 "
           >
-            {Object.keys(data).map((countryOption) => (
-              <option key={countryOption} value={countryOption}>
-                {countryOption}
+            <option value="">Select a country</option>
+            {countries.map((country) => (
+              <option key={country} value={country}>
+                {country}
               </option>
             ))}
           </select>
@@ -193,85 +90,86 @@ const StationCapabilities = () => {
         <div className="form-control">
           <label className="label">State</label>
           <select
-            className="select select-bordered rounded-2xl w-full"
-            value={state}
-            onChange={(e) => setState(e.target.value)}
+            value={selectedState}
+            onChange={(e) => setSelectedState(e.target.value)}
+            className="select select-bordered rounded-2xl w-full bg-gray-800 "
+            disabled={!selectedCountry}
           >
-            {availableStates.map((stateOption) => (
-              <option key={stateOption} value={stateOption}>
-                {stateOption}
+            <option value="">Select a state</option>
+            {states.map((state) => (
+              <option key={state} value={state}>
+                {state}
               </option>
             ))}
           </select>
         </div>
-      </div>
 
-      {stationInfo && (
-        <div className="mt-10 shadow-md rounded-2xl p-6 w-full max-w-5xl transition-colors bg-base-200 text-base-content">
-          <h2 className="text-2xl font-bold">{state}</h2>
+        {error && <p className="text-red-500 mt-4">{error}</p>}
 
-          <div className="mt-4 border rounded-2xl p-6 flex flex-col space-y-4">
-            <p className="font-semibold text-lg">Ground handling agent</p>
-            <p className="text-gray-700">{stationInfo.agent}</p>
-
+        {station && (
+          <div className="mt-6 p-6  rounded-2xl border ">
+            <h2 className="text-2xl font-semibold ">
+              {selectedState}
+            </h2>
             <div className="mt-4 space-y-2">
-              <p className="flex items-center gap-2">
-                <MapPin size={18} /> {stationInfo.location}
+              <p>
+                <strong>Ground Handling Agent:</strong> {station.agent}
               </p>
-              <p className="flex items-center gap-2">
-                <Phone size={18} /> {stationInfo.phone}
+              <p>
+                <MapPin className="inline mr-2" /> {station.location}
               </p>
-              <p className="flex items-center gap-2">
-                <Mail size={18} />
-                <a href={`mailto:${stationInfo.email}`} className="text-blue-600">
-                  {stationInfo.email}
+              <p>
+                <Phone className="inline mr-2" /> {station.phone}
+              </p>
+              <p>
+                <Mail className="inline mr-2" /> {station.email}
+              </p>
+              <p>
+                <Globe className="inline mr-2" />{" "}
+                <a href={station.website} target="_blank" rel="noopener noreferrer" className="text-blue-400">
+                  {station.website}
                 </a>
               </p>
-              {stationInfo.website && (
-                <p className="flex items-center gap-2">
-                  <Globe size={18} />
-                  <a href={stationInfo.website} target="_blank" className="text-blue-600">
-                    {stationInfo.website}
-                  </a>
-                </p>
-              )}
-              <p className="flex items-center gap-2">
-                <Clock size={18} /> {stationInfo.hours}
+              <p>
+                <Clock className="inline mr-2" /> {station.hours}
               </p>
             </div>
-          </div>
 
-          {stationInfo.contacts && (
-            <div className="mt-6">
-              <h3 className="text-lg font-semibold">Contacts</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {stationInfo.contacts.map((contact, index) => (
-                  <div
-                    key={index}
-                    className="flex flex-col p-4 border rounded-2xl shadow-md transition-colors bg-base-100 text-base-content"
-                  >
-                    <div className="flex items-center gap-2">
-                      <User size={20} className="text-primary" />
-                      <p className="font-bold">{contact.name}</p>
-                    </div>
-                    <p className="text-gray-700">{contact.title}</p>
-                    <p className="flex items-center gap-2 mt-2">
-                      <Phone size={18} className="text-primary" /> {contact.phone}
-                    </p>
-                    <p className="flex items-center gap-2">
-                      <Mail size={18} className="text-primary" />
-                      <a href={`mailto:${contact.email}`} className="text-blue-600">
-                        {contact.email}
-                      </a>
-                    </p>
-                  </div>
-                ))}
-              </div>
+            <h3 className="text-lg font-semibold mt-6">Contacts</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+              {station.contacts.map((contact, index) => (
+                <div key={index} className="p-4  border rounded-lg">
+                  <p>
+                    <User className="inline mr-2" /> {contact.name}
+                  </p>
+                  <p>
+                    <strong>Title:</strong> {contact.title}
+                  </p>
+                  <p>
+                    <Phone className="inline mr-2" /> {contact.phone}
+                  </p>
+                  <p>
+                    <Mail className="inline mr-2" /> {contact.email}
+                  </p>
+                  <p>
+                    <MapPin className="inline mr-2" /> {contact.address}
+                  </p>
+                  <p>
+                    <Globe className="inline mr-2" />{" "}
+                    <a href={contact.website} target="_blank" rel="noopener noreferrer" className="text-blue-400">
+                      {contact.website}
+                    </a>
+                  </p>
+                  <p>
+                    <Clock className="inline mr-2" /> {contact.hours}
+                  </p>
+                </div>
+              ))}
             </div>
-          )}
-        </div>
-      )}
-    </div> 
+          </div>
+        )}
+      </div>
+    </div>
   );
 };
 
