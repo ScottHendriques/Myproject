@@ -2,11 +2,11 @@ import { useState } from "react";
 import { useThemeStore } from "@/store/useThemeStore";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useNavigate } from "react-router-dom";
-import { MapPin, Calendar, Package, ClipboardList, Weight } from "lucide-react";
+import { MapPin, Calendar, Package, Weight } from "lucide-react";
 import AirportAutoComplete from "@/components/Autocomplete";
 import ItemDropDown from "../components/ItemDropDown";
-import { toast } from "react-toastify"; // Import toast from react-toastify
-import "react-toastify/dist/ReactToastify.css"; // Import toastify CSS
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const BookingPage = () => {
   const { theme } = useThemeStore();
@@ -24,12 +24,19 @@ const BookingPage = () => {
   const [item, setItem] = useState("");
   const [totalWeight, setTotalWeight] = useState(0);
   const [promoCode, setPromoCode] = useState("");
-  const [specialHandlingCode, setSpecialHandlingCode] = useState("");
-
 
   const calculateSummary = () => {
-    const grossWeight = pieces * weight;
-    const volume = (length * width * height * pieces) / 6000;
+    const parsedPieces = Number(pieces) || 0;
+    const parsedLength = Number(length) || 0;
+    const parsedWidth = Number(width) || 0;
+    const parsedHeight = Number(height) || 0;
+    const parsedWeight = Number(weight) || 0;
+
+    const grossWeight = parsedPieces * parsedWeight;
+    const volume =
+      parsedPieces && parsedLength && parsedWidth && parsedHeight
+        ? (parsedLength * parsedWidth * parsedHeight * parsedPieces) / 6000
+        : 0;
     const density = volume ? (grossWeight / volume).toFixed(2) : 0;
     const chargeableWeight = Math.max(grossWeight, volume * 167).toFixed(2);
 
@@ -39,12 +46,7 @@ const BookingPage = () => {
   const { grossWeight, volume, density, chargeableWeight } = calculateSummary();
 
   const getFinalPrice = () => {
-    let basePrice = 190; // default price for America
-
-    // Special handling for Admin
-    if (authUser?.username === "AdminMUC" && specialHandlingCode?.trim() !== "") {
-      return 0.0;
-    }
+    let basePrice = 90; 
 
     // Promo Code Discount
     const promo = promoCode.trim().toUpperCase();
@@ -59,92 +61,82 @@ const BookingPage = () => {
     }
     return basePrice.toFixed(2);
   };
-  
-  const handleUpload = async (e) => {
+
+  const validateWeight = () => {
+    const parsedTotalWeight = Number(totalWeight) || 0;
+    const parsedPieces = Number(pieces) || 0;
+    const parsedWeight = Number(weight) || 0;
+    if (
+      parsedPieces * parsedWeight > parsedTotalWeight &&
+      parsedTotalWeight > 0
+    ) {
+      toast.error(
+        `Total weight per piece (${
+          parsedWeight * parsedPieces
+        } kg) cannot exceed declared total weight (${parsedTotalWeight} kg).`
+      );
+      return false;
+    }
+    return true;
+  };
+
+  const handleContinue = (e) => {
     e.preventDefault();
     if (!authUser || !authUser._id) {
       toast.error("User not authenticated!");
       return;
     }
 
-    // Ensure all form values exist
+    // Ensure all form values exist and are valid
     if (!pieces || !length || !width || !height || !weight) {
       toast.error("Please fill in all cargo details.");
       return;
     }
-
-    // Construct payload
-    const payload = {
-      shippingFrom,
-      shippingTo,
-      date: shippingDate,
-      item,
-      totalWeight: parseFloat(totalWeight),
-      grossWeight: parseFloat(grossWeight),
-      pieces: parseInt(pieces, 10),
-      length: parseFloat(length),
-      width: parseFloat(width),
-      height: parseFloat(height),
-      weight: parseFloat(weight),
-      user: authUser._id, 
-      promoCode,
-      specialHandlingCode,
-      finalprice: getFinalPrice(),
-    };
-
-    console.log("Payload being sent:", payload);
-
-    try {
-      const res = await fetch(`http://localhost:5001/api/cargo/${authUser._id}`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
-      });
-
-      if (!res.ok) {
-        const errorText = await res.text();
-        throw new Error(`HTTP error! status: ${res.status}, message: ${errorText}`);
-      }
-
-      const data = await res.json();
-      console.log("Upload successful!", data);
-      toast.success("Booking created successfully!");
-    } catch (error) {
-      console.error("Upload error:", error);
-      toast.error("Failed to create booking. Please try again.");
+    if (
+      Number(pieces) <= 0 ||
+      Number(length) <= 0 ||
+      Number(width) <= 0 ||
+      Number(height) <= 0 ||
+      Number(weight) <= 0
+    ) {
+      toast.error("All cargo details must be positive numbers.");
+      return;
     }
-  };
+    if (!validateWeight()) return;
 
-  const handleContinue = () => {
-    navigate('/select', { 
-      state: { 
-        bookingData: { 
-          shippingFrom, 
-          shippingTo, 
-          shippingDate, 
-          item, 
-          totalWeight, 
-          grossWeight, 
-          pieces,
+    navigate("/select", {
+      state: {
+        bookingData: {
+          shippingFrom,
+          shippingTo,
+          shippingDate,
+          item,
+          totalWeight: parseFloat(totalWeight),
+          grossWeight: parseFloat(grossWeight),
+          pieces: parseInt(pieces, 10),
+          length: parseFloat(length),
+          width: parseFloat(width),
+          height: parseFloat(height),
+          weight: parseFloat(weight),
           promoCode,
-          specialHandlingCode,
-          finalprice: getFinalPrice(),
+          finalPrice: getFinalPrice(),
+          userId: authUser._id,
         },
       },
     });
   };
 
   return (
-    <form onSubmit={handleUpload} className="mt-20 p-6 bg-base-100 shadow-lg rounded-xl">
+    <form onSubmit={handleContinue} className="mt-20 p-6 bg-base-100 shadow-lg rounded-xl">
       <h2 className="text-2xl font-bold mb-4">Booking</h2>
       <div className="grid grid-cols-3 gap-4 mb-4">
         <div className="form-control">
           <label className="label">
             <span className="label-text">Shipping from</span>
           </label>
-          <div className="relative">
+          <
+
+div className="relative">
             <MapPin className="absolute top-3 left-3" />
             <AirportAutoComplete onSelect={setShippingFrom} />
           </div>
@@ -184,53 +176,37 @@ const BookingPage = () => {
             <ItemDropDown onSelect={setItem} />
           </div>
           <div className="relative">
-            <ClipboardList className="absolute top-3 left-3" />
+            <Weight className="absolute top-3 left-3" />
             <input
-              type="text"
-              name="specialHandlingCodes"
-              placeholder="Additional special handling codes"
+              type="number"
+              name="totalWeight"
+              placeholder="Total weight (kg)"
+              value={totalWeight}
+              onChange={(e) => setTotalWeight(Number(e.target.value))}
               className="input input-bordered pl-10 w-full"
-              value={specialHandlingCode}
-              onChange={(e) => setSpecialHandlingCode(e.target.value)}
+              min="0"
+              step="0.01"
             />
           </div>
         </div>
-        <div className="my-4">
-          <label className="label">
-            <span className="label-text">Total Weight</span>
-          </label>
-          <div className="grid grid-cols-3 gap-4">
-            <div className="relative">
-              <Weight className="absolute top-3 left-3" />
-              <input
-                type="number"
-                name="totalWeight"
-                placeholder="Total weight"
-                value={totalWeight}
-                onChange={(e) => setTotalWeight(Number(e.target.value))}
-                className="input input-bordered pl-10 w-full"
-              />
-            </div>
-          </div>
-        </div>
       </div>
-
+      {/* Cargo Details Section */}
       <div className="mt-4 p-4 border rounded-lg">
         <div className="grid grid-cols-5 gap-2">
           <label className="label">
             <span className="label-text">Pieces</span>
           </label>
           <label className="label">
-            <span className="label-text">Length</span>
+            <span className="label-text">Length (cm)</span>
           </label>
           <label className="label">
-            <span className="label-text">Width</span>
+            <span className="label-text">Width (cm)</span>
           </label>
           <label className="label">
-            <span className="label-text">Height</span>
+            <span className="label-text">Height (cm)</span>
           </label>
           <label className="label">
-            <span className="label-text">Weight</span>
+            <span className="label-text">Weight (kg)</span>
           </label>
         </div>
         <div className="grid grid-cols-5 gap-2 mt-2">
@@ -240,39 +216,57 @@ const BookingPage = () => {
             placeholder="Pieces"
             className="input input-bordered"
             value={pieces}
-            onChange={(e) => setPieces(Number(e.target.value))}
+            onChange={(e) => {
+              const newPieces = Number(e.target.value);
+              setPieces(newPieces);
+              if (!validateWeight()) setPieces("");
+            }}
+            min="1"
+            step="1"
           />
           <input
             type="number"
             name="length"
-            placeholder="Length"
+            placeholder="Length (cm)"
             className="input input-bordered"
             value={length}
             onChange={(e) => setLength(Number(e.target.value))}
+            min="0"
+            step="0.01"
           />
           <input
             type="number"
             name="width"
-            placeholder="Width"
+            placeholder="Width (cm)"
             className="input input-bordered"
             value={width}
             onChange={(e) => setWidth(Number(e.target.value))}
+            min="0"
+            step="0.01"
           />
           <input
             type="number"
             name="height"
-            placeholder="Height"
+            placeholder="Height (cm)"
             className="input input-bordered"
             value={height}
             onChange={(e) => setHeight(Number(e.target.value))}
+            min="0"
+            step="0.01"
           />
           <input
             type="number"
             name="weight"
-            placeholder="Weight"
+            placeholder="Weight (kg)"
             className="input input-bordered"
             value={weight}
-            onChange={(e) => setWeight(Number(e.target.value))}
+            onChange={(e) => {
+              const newWeight = Number(e.target.value);
+              setWeight(newWeight);
+              if (!validateWeight()) setWeight("");
+            }}
+            min="0"
+            step="0.01"
           />
         </div>
       </div>
@@ -307,11 +301,11 @@ const BookingPage = () => {
         <div className="grid grid-cols-5 gap-4 text-center border-b pb-2">
           <div>
             <p className="text-sm text-gray-500">Pieces</p>
-            <p className="text-lg font-bold">{pieces}</p>
+            <p className="text-lg font-bold">{pieces || 0}</p>
           </div>
           <div>
             <p className="text-sm text-gray-500">Gross weight</p>
-            <p className="text-lg font-bold">{grossWeight} kg</p>
+            <p className="text-lg font-bold">{grossWeight.toFixed(2)} kg</p>
           </div>
           <div>
             <p className="text-sm text-gray-500">Volume</p>
@@ -327,7 +321,9 @@ const BookingPage = () => {
           </div>
         </div>
         <div className="flex justify-between mt-4">
-          <button type="submit" onClick={handleContinue} className="btn btn-primary">Continue</button>
+          <button type="submit" className="btn btn-primary">
+            Continue
+          </button>
           <button
             type="button"
             className="text-blue-500"

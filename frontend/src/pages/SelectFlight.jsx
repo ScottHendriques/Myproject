@@ -85,7 +85,13 @@ const SelectFlight = () => {
   }, [bookingData]);
 
   const handlePayment = (price, flightId) => {
-    navigate("/payment", { state: { price, flightId } });
+    if (!bookingData) {
+      console.error("Booking data missing in SelectFlight:", { bookingData });
+      navigate("/booking");
+      return;
+    }
+    console.log("Navigating to /payment with:", { price, flightId, bookingData });
+    navigate("/payment", { state: { price, flightId, bookingData } });
   };
 
   if (!bookingData) {

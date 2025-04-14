@@ -86,4 +86,24 @@ router.get('/handled/:adminId', async (req, res) => {
   }
 });
 
+router.get('/approved', async (req, res) => {
+  try {
+    const count = await Feedback.countDocuments({ status: 'Approved' });
+    res.status(200).json({ count });
+  } catch (error) {
+    console.error('Error fetching approved feedback count:', error.message);
+    res.status(500).json({ message: 'Internal server error.' });
+  }
+});
+
+router.get('/pending', async (req, res) => {
+  try {
+    const count = await Feedback.countDocuments({ status: 'Pending' });
+    res.status(200).json({ count });
+  } catch (error) {
+    console.error('Error fetching pending feedback count:', error.message);
+    res.status(500).json({ message: 'Internal server error.' });
+  }
+});
+
 export default router;

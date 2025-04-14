@@ -14,8 +14,12 @@ const DashboardAdmin = () => {
   const [loadingRoutes, setLoadingRoutes] = useState(true);
   const [totalShipments, setTotalShipments] = useState(0);
   const [loadingTotalShipments, setLoadingTotalShipments] = useState(true);
+  const [reviewingFeedbacks, setReviewingFeedbacks] = useState(0);
+  const [loadingReviewingFeedbacks, setLoadingReviewingFeedbacks] = useState(true);
   const [pendingFeedbacks, setPendingFeedbacks] = useState(0);
-  const [loadingFeedbacks, setLoadingFeedbacks] = useState(true);
+  const [loadingPendingFeedbacks, setLoadingPendingFeedbacks] = useState(true);
+  const [approvedFeedbacks, setApprovedFeedbacks] = useState(0);
+  const [loadingApprovedFeedbacks, setLoadingApprovedFeedbacks] = useState(true);
   const [handledFeedbacks, setHandledFeedbacks] = useState(0);
   const [loadingHandledFeedbacks, setLoadingHandledFeedbacks] = useState(true);
   const navigate = useNavigate();
@@ -23,7 +27,6 @@ const DashboardAdmin = () => {
   useEffect(() => {
     const fetchRecentShipments = async () => {
       if (!authUser || !authUser._id) return;
-
       try {
         const res = await axiosInstance.get(`/admin/recent`);
         setRecentShipments(res.data);
@@ -33,14 +36,12 @@ const DashboardAdmin = () => {
         setLoadingShipments(false);
       }
     };
-
     fetchRecentShipments();
   }, [authUser]);
 
   useEffect(() => {
     const fetchTopCargoTypes = async () => {
       if (!authUser || !authUser._id) return;
-
       try {
         const res = await axiosInstance.get(`/admin/top-cargo`);
         setTopCargoTypes(res.data);
@@ -51,14 +52,12 @@ const DashboardAdmin = () => {
         setLoadingCargoTypes(false);
       }
     };
-
     fetchTopCargoTypes();
   }, [authUser]);
 
   useEffect(() => {
     const fetchTopRoutes = async () => {
       if (!authUser || !authUser._id) return;
-
       try {
         const res = await axiosInstance.get(`/admin/top-routes`);
         setTopRoutes(res.data);
@@ -69,14 +68,12 @@ const DashboardAdmin = () => {
         setLoadingRoutes(false);
       }
     };
-
     fetchTopRoutes();
   }, [authUser]);
 
   useEffect(() => {
     const fetchTotalShipments = async () => {
       if (!authUser || !authUser._id) return;
-
       try {
         const res = await axiosInstance.get(`/admin/total-shipments`);
         setTotalShipments(res.data.totalShipments);
@@ -86,34 +83,36 @@ const DashboardAdmin = () => {
         setLoadingTotalShipments(false);
       }
     };
-
     fetchTotalShipments();
   }, [authUser]);
 
   useEffect(() => {
-    const fetchPendingFeedbacks = async () => {
+    const fetchFeedbacks = async () => {
       if (!authUser || !authUser._id) return;
-
       try {
         const res = await axiosInstance.get('/api/feedback/getAllFeedback');
-        const pendingCount = res.data.filter(
+        const reviewingCount = res.data.filter(
           (fb) => fb.status === 'Pending' || fb.status === 'Reviewing'
         ).length;
+        const pendingCount = res.data.filter((fb) => fb.status === 'Pending').length;
+        const approvedCount = res.data.filter((fb) => fb.status === 'Approved').length;
+        setReviewingFeedbacks(reviewingCount);
         setPendingFeedbacks(pendingCount);
+        setApprovedFeedbacks(approvedCount);
       } catch (error) {
         console.error('Error fetching feedbacks:', error);
       } finally {
-        setLoadingFeedbacks(false);
+        setLoadingReviewingFeedbacks(false);
+        setLoadingPendingFeedbacks(false);
+        setLoadingApprovedFeedbacks(false);
       }
     };
-
-    fetchPendingFeedbacks();
+    fetchFeedbacks();
   }, [authUser]);
 
   useEffect(() => {
     const fetchHandledFeedbacks = async () => {
       if (!authUser || !authUser._id) return;
-
       try {
         const res = await axiosInstance.get(`/api/feedback/handled/${authUser._id}`);
         setHandledFeedbacks(res.data.count);
@@ -123,16 +122,15 @@ const DashboardAdmin = () => {
         setLoadingHandledFeedbacks(false);
       }
     };
-
     fetchHandledFeedbacks();
   }, [authUser]);
 
   return (
-    <div className="min-h-screen bg-base-200 py-20 px-6">
-      <header className="sticky top-0 z-10 bg-base-100 rounded-xl shadow-md p-4 mb-6 flex justify-between items-center border border-base-300">
-        <div className="flex items-center gap-3">
-          <Shield size={28} className="text-primary" />
-          <h1 className="text-2xl font-bold text-base-content">Admin Dashboard</h1>
+    <div className="min-h-screen bg-base-100 py-12 px-6">
+      <header className="bg-base-200 rounded-lg p-4 mb-6 flex justify-between items-center">
+        <div className="flex items-center gap-2">
+          <Shield size={24} className="text-primary" />
+          <h1 className="text-xl font-semibold text-base-content">Admin Dashboard</h1>
         </div>
         <button
           className="btn btn-ghost btn-sm"
@@ -141,40 +139,25 @@ const DashboardAdmin = () => {
             navigate('/login');
           }}
         >
-          <LogOut size={18} /> Logout
+          <LogOut size={16} /> Logout
         </button>
       </header>
 
-      <div className="grid gap-6 grid-cols-1 md:grid-cols-3 lg:grid-cols-4 max-w-7xl mx-auto">
-        <div className="md:col-span-2 lg:col-span-2 bg-base-100 rounded-xl shadow-xl border-t-4 border-primary hover:shadow-lg transition">
-          <div className="p-6">
-            <h3 className="text-2xl font-semibold text-base-content flex items-center gap-2">
-              <Gauge size={24} className="text-primary" /> Total Shipments
+      <div className="max-w-7xl mx-auto space-y-6">
+        {/* First Row: Customer Feedback, Pending Feedback, Approved Feedback */}
+        <div className="grid gap-6 grid-cols-1 md:grid-cols-3">
+          <div className="bg-base-200 rounded-lg p-4">
+            <h3 className="text-lg font-medium text-base-content flex items-center gap-2">
+              <MessageCircle size={20} className="text-warning" /> Customer Feedback
             </h3>
-            {loadingTotalShipments ? (
-              <p className="text-base-content/70 mt-4">Loading...</p>
+            {loadingReviewingFeedbacks ? (
+              <p className="text-base-content/70 mt-2">Loading...</p>
             ) : (
-              <div className="text-center mt-6">
-                <p className="text-6xl font-bold text-primary">{totalShipments}</p>
-                <p className="text-lg font-medium text-base-content/70">Cargo Shipments</p>
-              </div>
-            )}
-          </div>
-        </div>
-
-        <div className="bg-base-100 rounded-xl shadow-xl border-t-4 border-warning hover:shadow-lg transition">
-          <div className="p-6">
-            <h3 className="text-2xl font-semibold text-base-content flex items-center gap-2">
-              <MessageCircle size={24} className="text-warning" /> Customer Feedback
-            </h3>
-            {loadingFeedbacks ? (
-              <p className="text-base-content/70 mt-4">Loading...</p>
-            ) : (
-              <div className="text-center mt-6">
-                <p className="text-4xl font-bold text-warning">{pendingFeedbacks}</p>
-                <p className="text-lg font-medium text-base-content/70">Pending/Reviewing</p>
+              <div className="text-center mt-4">
+                <p className="text-2xl font-semibold text-warning">{reviewingFeedbacks}</p>
+                <p className="text-base text-base-content/70">Reviewing</p>
                 <button
-                  className="btn btn-primary btn-sm mt-4"
+                  className="btn btn-primary btn-sm mt-3"
                   onClick={() => navigate('/admin/customer-service')}
                 >
                   Review Now
@@ -182,71 +165,80 @@ const DashboardAdmin = () => {
               </div>
             )}
           </div>
-        </div>
 
-        <div className="bg-base-100 rounded-xl shadow-xl border-t-4 border-accent hover:shadow-lg transition">
-          <div className="p-6">
-            <h3 className="text-2xl font-semibold text-base-content">Top Cargo Types</h3>
-            {loadingCargoTypes ? (
-              <p className="text-base-content/70 mt-4">Loading...</p>
-            ) : topCargoTypes.length > 0 ? (
-              <ol className="mt-4 space-y-3">
-                {topCargoTypes.map((cargo, index) => (
-                  <li
-                    key={index}
-                    className="p-3 bg-base-200/50 rounded-lg flex justify-between items-center"
-                  >
-                    <p className="text-sm font-medium">
-                      <strong>{index + 1}. {cargo._id}</strong>
-                    </p>
-                    <span className="badge badge-primary badge-sm">{cargo.count} shipments</span>
-                  </li>
-                ))}
-              </ol>
+          <div className="bg-base-200 rounded-lg p-4">
+            <h3 className="text-lg font-medium text-base-content flex items-center gap-2">
+              <MessageCircle size={20} className="text-warning" /> Pending Feedback
+            </h3>
+            {loadingPendingFeedbacks ? (
+              <p className="text-base-content/70 mt-2">Loading...</p>
             ) : (
-              <p className="text-base-content/70 mt-4">No cargo types found</p>
+              <div className="text-center mt-4">
+                <p className="text-2xl font-semibold text-warning">{pendingFeedbacks}</p>
+                <p className="text-base text-base-content/70">Pending</p>
+                <button
+                  className="btn btn-primary btn-sm mt-3"
+                  onClick={() => navigate('/admin/customer-service')}
+                >
+                  View Pending
+                </button>
+              </div>
+            )}
+          </div>
+
+          <div className="bg-base-200 rounded-lg p-4">
+            <h3 className="text-lg font-medium text-base-content flex items-center gap-2">
+              <MessageCircle size={20} className="text-success" /> Approved Feedback
+            </h3>
+            {loadingApprovedFeedbacks ? (
+              <p className="text-base-content/70 mt-2">Loading...</p>
+            ) : (
+              <div className="text-center mt-4">
+                <p className="text-2xl font-semibold text-success">{approvedFeedbacks}</p>
+                <p className="text-base text-base-content/70">Approved</p>
+                <button
+                  className="btn btn-primary btn-sm mt-3"
+                  onClick={() => navigate('/admin/customer-service')}
+                >
+                  View Approved
+                </button>
+              </div>
             )}
           </div>
         </div>
 
-        <div className="bg-base-100 rounded-xl shadow-xl border-t-4 border-accent hover:shadow-lg transition">
-          <div className="p-6">
-            <h3 className="text-2xl font-semibold text-base-content">Top Routes</h3>
-            {loadingRoutes ? (
-              <p className="text-base-content/70 mt-4">Loading...</p>
-            ) : topRoutes.length > 0 ? (
-              <ol className="mt-4 space-y-3">
-                {topRoutes.map((route, index) => (
-                  <li
-                    key={index}
-                    className="p-3 bg-base-200/50 rounded-lg flex justify-between items-center"
-                  >
-                    <p className="text-sm font-medium">
-                      <strong>{index + 1}. {route._id}</strong>
-                    </p>
-                    <span className="badge badge-primary badge-sm">{route.count} shipments</span>
-                  </li>
-                ))}
-              </ol>
-            ) : (
-              <p className="text-base-content/70 mt-4">No routes found</p>
-            )}
+        {/* Second Row: Quick Actions, Enquiries Handled */}
+        <div className="grid gap-6 grid-cols-1 md:grid-cols-2">
+          <div className="bg-base-200 rounded-lg p-4">
+            <h3 className="text-lg font-medium text-base-content mb-3">Quick Actions</h3>
+            <div className="space-y-3">
+              <button
+                className="btn btn-primary btn-sm w-full flex items-center justify-center gap-2"
+                onClick={() => navigate('/admin/users')}
+              >
+                <Users size={16} /> Manage Users
+              </button>
+              <button
+                className="btn btn-primary btn-sm w-full flex items-center justify-center gap-2"
+                onClick={() => navigate('/admin/customer-service')}
+              >
+                <MessageCircle size={16} /> Customer Service
+              </button>
+            </div>
           </div>
-        </div>
 
-        <div className="bg-base-100 rounded-xl shadow-xl border-t-4 border-warning hover:shadow-lg transition">
-          <div className="p-6">
-            <h3 className="text-2xl font-semibold text-base-content flex items-center gap-2">
-              <MessageCircle size={24} className="text-warning" /> Customer Service Enquiries Handled
+          <div className="bg-base-200 rounded-lg p-4">
+            <h3 className="text-lg font-medium text-base-content flex items-center gap-2">
+              <MessageCircle size={20} className="text-warning" /> Enquiries Handled
             </h3>
             {loadingHandledFeedbacks ? (
-              <p className="text-base-content/70 mt-4">Loading...</p>
+              <p className="text-base-content/70 mt-2">Loading...</p>
             ) : (
-              <div className="text-center mt-6">
-                <p className="text-4xl font-bold text-warning">{handledFeedbacks}</p>
-                <p className="text-lg font-medium text-base-content/70">Enquiries Handled</p>
+              <div className="text-center mt-4">
+                <p className="text-2xl font-semibold text-warning">{handledFeedbacks}</p>
+                <p className="text-base text-base-content/70">Handled by You</p>
                 <button
-                  className="btn btn-primary btn-sm mt-4"
+                  className="btn btn-primary btn-sm mt-3"
                   onClick={() => navigate('/admin/customer-service')}
                 >
                   View Enquiries
@@ -256,10 +248,74 @@ const DashboardAdmin = () => {
           </div>
         </div>
 
-        <div className="md:col-span-2 lg:col-span-3 bg-base-100 rounded-xl shadow-xl border-t-4 border-primary hover:shadow-lg transition">
-          <div className="p-6">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-2xl font-semibold text-base-content">Recent Shipments</h3>
+        {/* Third Row: Total Shipments, Top Cargo Types, Top Routes */}
+        <div className="grid gap-6 grid-cols-1 md:grid-cols-3">
+          <div className="bg-base-200 rounded-lg p-4">
+            <h3 className="text-lg font-medium text-base-content flex items-center gap-2">
+              <Gauge size={20} className="text-primary" /> Total Shipments
+            </h3>
+            {loadingTotalShipments ? (
+              <p className="text-base-content/70 mt-2">Loading...</p>
+            ) : (
+              <div className="text-center mt-4">
+                <p className="text-2xl font-semibold text-primary">{totalShipments}</p>
+                <p className="text-base text-base-content/70">Cargo Shipments</p>
+              </div>
+            )}
+          </div>
+
+          <div className="bg-base-200 rounded-lg p-4">
+            <h3 className="text-lg font-medium text-base-content">Top Cargo Types</h3>
+            {loadingCargoTypes ? (
+              <p className="text-base-content/70 mt-2">Loading...</p>
+            ) : topCargoTypes.length > 0 ? (
+              <ol className="mt-3 space-y-2">
+                {topCargoTypes.map((cargo, index) => (
+                  <li
+                    key={index}
+                    className="p-2 bg-base-100 rounded-md flex justify-between items-center"
+                  >
+                    <p className="text-sm font-medium">
+                      {index + 1}. {cargo._id}
+                    </p>
+                    <span className="badge badge-primary badge-sm">{cargo.count}</span>
+                  </li>
+                ))}
+              </ol>
+            ) : (
+              <p className="text-base-content/70 mt-2">No cargo types found</p>
+            )}
+          </div>
+
+          <div className="bg-base-200 rounded-lg p-4">
+            <h3 className="text-lg font-medium text-base-content">Top Routes</h3>
+            {loadingRoutes ? (
+              <p className="text-base-content/70 mt-2">Loading...</p>
+            ) : topRoutes.length > 0 ? (
+              <ol className="mt-3 space-y-2">
+                {topRoutes.map((route, index) => (
+                  <li
+                    key={index}
+                    className="p-2 bg-base-100 rounded-md flex justify-between items-center"
+                  >
+                    <p className="text-sm font-medium">
+                      {index + 1}. {route._id}
+                    </p>
+                    <span className="badge badge-primary badge-sm">{route.count}</span>
+                  </li>
+                ))}
+              </ol>
+            ) : (
+              <p className="text-base-content/70 mt-2">No routes found</p>
+            )}
+          </div>
+        </div>
+
+        {/* Fourth Row: Recent Shipments */}
+        <div className="grid gap-6 grid-cols-1">
+          <div className="bg-base-200 rounded-lg p-4">
+            <div className="flex justify-between items-center mb-3">
+              <h3 className="text-lg font-medium text-base-content">Recent Shipments</h3>
               <button
                 className="btn btn-primary btn-sm"
                 onClick={() => navigate('/admin/shipments')}
@@ -268,13 +324,13 @@ const DashboardAdmin = () => {
               </button>
             </div>
             {loadingShipments ? (
-              <p className="text-base-content/70 mt-4">Loading...</p>
+              <p className="text-base-content/70">Loading...</p>
             ) : recentShipments.length > 0 ? (
-              <div className="space-y-3">
+              <div className="space-y-2">
                 {recentShipments.map((shipment) => (
                   <div
                     key={shipment._id}
-                    className="p-4 bg-base-200/50 rounded-lg flex justify-between items-center"
+                    className="p-3 bg-base-100 rounded-md flex justify-between items-center"
                   >
                     <div>
                       <p className="text-sm font-medium">
@@ -302,40 +358,8 @@ const DashboardAdmin = () => {
                 ))}
               </div>
             ) : (
-              <p className="text-base-content/70 mt-4">No recent shipments</p>
+              <p className="text-base-content/70">No recent shipments</p>
             )}
-          </div>
-        </div>
-
-        <div className="bg-base-100 rounded-xl shadow-xl border-t-4 border-accent hover:shadow-lg transition">
-          <div className="p-6">
-            <h3 className="text-2xl font-semibold text-base-content mb-4">Quick Actions</h3>
-            <div className="space-y-4">
-              <button
-                className="btn btn-primary w-full flex items-center justify-center gap-2"
-                onClick={() => navigate('/admin/users')}
-              >
-                <Users size={18} /> Manage Users
-              </button>
-              <button
-                className="btn btn-primary w-full flex items-center justify-center gap-2"
-                onClick={() => navigate('/admin/customer-service')}
-              >
-                <MessageCircle size={18} /> Customer Service
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-base-100 rounded-xl shadow-xl border-t-4 border-warning hover:shadow-lg transition">
-          <div className="p-6">
-            <h3 className="text-2xl font-semibold text-base-content flex items-center gap-2">
-              <Package size={24} className="text-warning" /> Pending Actions
-            </h3>
-            <div className="text-center mt-6">
-              <p className="text-4xl font-bold text-warning">3</p>
-              <p className="text-lg font-medium text-base-content/70">Awaiting Approval</p>
-            </div>
           </div>
         </div>
       </div>
