@@ -1,29 +1,29 @@
-import React, { useEffect, useState } from "react";
-import axios from "axios";
-import { CheckCircle, XCircle, Eye, X, Send } from "lucide-react"; // Import icons
-import emailjs from "emailjs-com"; // Import EmailJS
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
+import { CheckCircle, Eye, X, Send, Shield } from 'lucide-react';
+import emailjs from 'emailjs-com';
+import { useAuthStore } from '../store/useAuthStore';
 
 const AdminCusServ = () => {
+  const { authUser } = useAuthStore();
   const [feedbacks, setFeedbacks] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-  const [selectedFeedback, setSelectedFeedback] = useState(null); // State for selected feedback
-  const [isModalOpen, setIsModalOpen] = useState(false); // State for modal visibility
-  const [approvedFeedbacks, setApprovedFeedbacks] = useState({}); // Track approved feedbacks
-  const [rejectedFeedbacks, setRejectedFeedbacks] = useState({}); // Track rejected feedbacks
+  const [error, setError] = useState('');
+  const [selectedFeedback, setSelectedFeedback] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
-  // Fetch all feedback from the backend
+  // Fetch all feedback
   useEffect(() => {
     const fetchFeedbacks = async () => {
       try {
-        const response = await axios.get("http://localhost:5001/api/feedback/getAllFeedback", {
+        const response = await axios.get('http://localhost:5001/api/feedback/getAllFeedback', {
           withCredentials: true,
         });
         setFeedbacks(response.data);
         setLoading(false);
       } catch (err) {
-        console.error("Error fetching feedback:", err.message);
-        setError("Failed to fetch feedback. Please try again later.");
+        console.error('Error fetching feedback:', err.message);
+        setError('Failed to fetch feedback. Please try again later.');
         setLoading(false);
       }
     };
@@ -31,16 +31,38 @@ const AdminCusServ = () => {
     fetchFeedbacks();
   }, []);
 
+  // Handle status update
+  const updateFeedbackStatus = async (id, status) => {
+    try {
+      const response = await axios.put(
+        `http://localhost:5001/api/feedback/updateFeedback/${id}`,
+        { status, adminId: authUser._id }, // Send adminId
+        { withCredentials: true }
+      );
+      setFeedbacks((prev) =>
+        prev.map((fb) => (fb._id === id ? response.data.feedback : fb))
+      );
+    } catch (err) {
+      console.error('Error updating feedback status:', err.message);
+      alert('Failed to update status.');
+    }
+  };
+
+  // Handle approve (tick mark)
+  const handleApprove = (id) => {
+    updateFeedbackStatus(id, 'Approved');
+  };
+
+  // Handle review (eye icon)
   const handleReview = (feedback) => {
-    setSelectedFeedback(feedback); // Set the selected feedback
-    setIsModalOpen(true); // Open the modal
+    setSelectedFeedback(feedback);
+    setIsModalOpen(true);
+    if (feedback.status !== 'Approved') {
+      updateFeedbackStatus(feedback._id, 'Reviewing');
+    }
   };
 
-  const closeModal = () => {
-    setSelectedFeedback(null); // Clear the selected feedback
-    setIsModalOpen(false); // Close the modal
-  };
-
+  // Handle reply via EmailJS
   const handleReply = () => {
     if (!selectedFeedback) return;
 
@@ -53,139 +75,165 @@ const AdminCusServ = () => {
 
     emailjs
       .send(
-        "service_51t6g2p", // Replace with your EmailJS service ID
-        "template_matp20d", // Replace with your EmailJS template ID
+        'service_51t6g2p', // Replace with your EmailJS service ID
+        'template_matp20d', // Replace with your EmailJS template ID
         templateParams,
-        "LpGEpJqOwCc3mt3qP" // Replace with your EmailJS user ID (public key)
+        'LpGEpJqOwCc3mt3qP' // Replace with your EmailJS user ID
       )
       .then(
-        (response) => {
-          console.log("Email sent successfully:", response.status, response.text);
-          alert("Reply sent successfully!");
+        () => {
+          alert('Reply sent successfully!');
         },
         (error) => {
-          console.error("Error sending email:", error);
-          alert("Failed to send reply. Please try again.");
+          console.error('Error sending email:', error);
+          alert('Failed to send reply.');
         }
       );
   };
 
-  const handleApprove = (id) => {
-    setApprovedFeedbacks((prev) => ({ ...prev, [id]: true }));
-    setRejectedFeedbacks((prev) => ({ ...prev, [id]: false })); // Ensure rejection is cleared
-  };
-
-  const handleReject = (id) => {
-    setRejectedFeedbacks((prev) => ({ ...prev, [id]: true }));
-    setApprovedFeedbacks((prev) => ({ ...prev, [id]: false })); // Ensure approval is cleared
+  // Close modal
+  const closeModal = () => {
+    setSelectedFeedback(null);
+    setIsModalOpen(false);
   };
 
   if (loading) {
-    return <p>Loading feedback...</p>;
+    return <div className="p-6 text-base-content/70">Loading feedback...</div>;
   }
 
   if (error) {
-    return <p className="text-red-500">{error}</p>;
+    return <div className="p-6 text-error">{error}</div>;
   }
 
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold mb-4">Customer Service Enquiries</h1>
-      {feedbacks.length === 0 ? (
-        <p>No feedback available.</p>
-      ) : (
-        <table className="w-full border-collapse border border-gray-300">
-          <thead>
-            <tr className="bg-gray-100">
-              <th className="border border-gray-300 p-2">Name</th>
-              <th className="border border-gray-300 p-2">Email</th>
-              <th className="border border-gray-300 p-2">Category</th>
-              <th className="border border-gray-300 p-2">Submitted At</th>
-              <th className="border border-gray-300 p-2">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {feedbacks.map((feedback) => (
-              <tr key={feedback._id} className="text-center">
-                <td className="border border-gray-300 p-2">{feedback.name}</td>
-                <td className="border border-gray-300 p-2">{feedback.email}</td>
-                <td className="border border-gray-300 p-2">{feedback.category}</td>
-                <td className="border border-gray-300 p-2">
-                  {new Date(feedback.submittedAt).toLocaleString()}
-                </td>
-                <td className="border border-gray-300 p-2 flex justify-center space-x-2">
-                  {/* Green Tick Button */}
-                  <button
-                    className={`${
-                      approvedFeedbacks[feedback._id]
-                        ? "text-green-800"
-                        : "text-green-300 opacity-50"
-                    } hover:text-green-700 transition-opacity`}
-                    onClick={() => handleApprove(feedback._id)}
-                  >
-                    <CheckCircle size={20} />
-                  </button>
-                  {/* Red Cancel Button */}
-                  <button
-                    className={`${
-                      rejectedFeedbacks[feedback._id]
-                        ? "text-red-700"
-                        : "text-red-400 opacity-50"
-                    } hover:text-red-700 transition-opacity`}
-                    onClick={() => handleReject(feedback._id)}
-                  >
-                    <XCircle size={20} />
-                  </button>
-                  {/* Review Button */}
-                  <button
-                    className="text-blue-500 hover:text-blue-700 transition-opacity opacity-50 hover:opacity-100"
-                    onClick={() => handleReview(feedback)}
-                  >
-                    <Eye size={20} />
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      )}
+    <div className="min-h-screen bg-base-200 py-20 px-6">
+      <div className="max-w-5xl mx-auto">
+        <h1 className="text-3xl font-bold text-base-content mb-6 flex items-center gap-2">
+          <Shield size={28} className="text-primary" /> Customer Service Enquiries
+        </h1>
+        {feedbacks.length === 0 ? (
+          <div className="bg-base-100 rounded-xl p-6 shadow-xl text-base-content/70">
+            No feedback available.
+          </div>
+        ) : (
+          <div className="bg-base-100 rounded-xl shadow-xl border border-base-300 overflow-hidden">
+            <table className="w-full">
+              <thead>
+                <tr className="bg-base-200 text-base-content">
+                  <th className="p-4 text-left">Name</th>
+                  <th className="p-4 text-left">Email</th>
+                  <th className="p-4 text-left">Category</th>
+                  <th className="p-4 text-left">Status</th>
+                  <th className="p-4 text-left">Submitted At</th>
+                  <th className="p-4 text-left">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {feedbacks.map((feedback) => (
+                  <tr key={feedback._id} className="border-t border-base-300">
+                    <td className="p-4">{feedback.name}</td>
+                    <td className="p-4">{feedback.email}</td>
+                    <td className="p-4 capitalize">
+                      {feedback.category.replace(/-/g, ' ')}
+                    </td>
+                    <td className="p-4">
+                      <span
+                        className={`badge ${
+                          feedback.status === 'Approved'
+                            ? 'badge-success'
+                            : feedback.status === 'Reviewing'
+                            ? 'badge-warning'
+                            : 'badge-neutral'
+                        }`}
+                      >
+                        {feedback.status}
+                      </span>
+                    </td>
+                    <td className="p-4">
+                      {new Date(feedback.submittedAt).toLocaleString()}
+                    </td>
+                    <td className="p-4 flex gap-2">
+                      <button
+                        className={`btn btn-ghost btn-sm ${
+                          feedback.status === 'Approved' ? 'text-success' : ''
+                        }`}
+                        onClick={() => handleApprove(feedback._id)}
+                        disabled={feedback.status === 'Approved'}
+                        title="Approve"
+                      >
+                        <CheckCircle size={20} />
+                      </button>
+                      <button
+                        className="btn btn-ghost btn-sm"
+                        onClick={() => handleReview(feedback)}
+                        title="Review"
+                      >
+                        <Eye size={20} />
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
 
-      {/* Modal */}
-      {isModalOpen && selectedFeedback && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-lg shadow-lg w-1/3">
-            <h2 className="text-xl font-bold mb-4">Feedback Details</h2>
-            <p>
-              <strong>Name:</strong> {selectedFeedback.name}
-            </p>
-            <p>
-              <strong>Email:</strong> {selectedFeedback.email}
-            </p>
-            <p>
-              <strong>Category:</strong> {selectedFeedback.category}
-            </p>
-            <p>
-              <strong>Message:</strong> {selectedFeedback.message}
-            </p>
-            <div className="mt-4 flex justify-end space-x-2">
-              <button
-                className="bg-gray-300 text-gray-700 px-4 py-2 rounded hover:bg-gray-400 flex items-center space-x-2"
-                onClick={closeModal}
-              >
-                <X size={16} />
-                <span>Close</span>
-              </button>
-              <button
-                className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 flex items-center space-x-2"
-                onClick={handleReply}
-              >
-                <Send size={16} />
-                <span>Reply</span>
-              </button>
+        {/* Modal */}
+        {isModalOpen && selectedFeedback && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-base-100 p-6 rounded-xl shadow-xl w-full max-w-md">
+              <h2 className="text-xl font-bold text-base-content mb-4">
+                Feedback Details
+              </h2>
+              <p className="text-sm">
+                <strong>Name:</strong> {selectedFeedback.name}
+              </p>
+              <p className="text-sm">
+                <strong>Email:</strong> {selectedFeedback.email}
+              </p>
+              <p className="text-sm">
+                <strong>Category:</strong>{' '}
+                {selectedFeedback.category.replace(/-/g, ' ')}
+              </p>
+              <p className="text-sm">
+                <strong>Message:</strong> {selectedFeedback.message}
+              </p>
+              <p className="text-sm">
+                <strong>AWB Code:</strong>{' '}
+                {selectedFeedback.awbCode || 'Not provided'}
+              </p>
+              <p className="text-sm">
+                <strong>Status:</strong>{' '}
+                <span
+                  className={`badge ${
+                    selectedFeedback.status === 'Approved'
+                      ? 'badge-success'
+                      : selectedFeedback.status === 'Reviewing'
+                      ? 'badge-warning'
+                      : 'badge-neutral'
+                  }`}
+                >
+                  {selectedFeedback.status}
+                </span>
+              </p>
+              <div className="mt-6 flex justify-end gap-2">
+                <button
+                  className="btn btn-ghost btn-sm flex items-center gap-2"
+                  onClick={closeModal}
+                >
+                  <X size={16} /> Close
+                </button>
+                <button
+                  className="btn btn-primary btn-sm flex items-center gap-2"
+                  onClick={handleReply}
+                >
+                  <Send size={16} /> Reply
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 };

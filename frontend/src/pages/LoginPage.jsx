@@ -101,12 +101,6 @@ const LoginPage = () => {
                 Create account
               </Link>
             </p>
-            <p className = "text-base-content/60 mt-2">
-              You are an Employee?{" "}
-              <Link to="/employee-login" className="link link-primary">
-                Employee-Login
-              </Link>
-            </p>
           </div>
         </div>
       </div>

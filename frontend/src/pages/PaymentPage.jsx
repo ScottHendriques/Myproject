@@ -1,25 +1,38 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
+import { axiosInstance } from '../lib/axios';
 
 const PaymentPage = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { price, flightId } = location.state || {};
+  const [loading, setLoading] = useState(false);
 
-  const handlePayment = () => {
+  const handlePayment = async () => {
     if (!price || !flightId) {
       toast.error('Invalid payment details');
       return;
     }
 
-    // Redirect to Stripe payment page with state
-    navigate('/stripe-payment', {
-      state: { price, flightId },
-    });
+    setLoading(true);
+    try {
+      const response = await axiosInstance.post('/payment/create-payment-intent', {
+        amount: price,
+        flightId,
+      });
+      const { clientSecret } = response.data;
+      navigate('/stripe-payment', {
+        state: { clientSecret, price, flightId },
+      });
+    } catch (error) {
+      toast.error('Failed to initiate payment');
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  // Handle invalid payment details
   if (!price || !flightId) {
     return <p>Invalid payment details. Please try again.</p>;
   }
@@ -30,10 +43,11 @@ const PaymentPage = () => {
       <p className="mt-4">Flight ID: {flightId}</p>
       <p className="mt-2">Price: EUR {price.toFixed(2)}</p>
       <button
-        className="bg-green-500 text-white px-4 py-2 rounded-lg mt-4"
+        className="bg-green-500 text-white px-4 py-2 rounded-lg mt-4 disabled:opacity-50"
         onClick={handlePayment}
+        disabled={loading}
       >
-        Proceed to Payment
+        {loading ? 'Processing...' : 'Proceed to Payment'}
       </button>
     </div>
   );

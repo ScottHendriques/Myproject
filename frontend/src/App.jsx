@@ -14,20 +14,19 @@ import BookingPage from './pages/BookingPage.jsx';
 import TrackingPage from './pages/TrackingPage.jsx';
 import FlightSchedule from './pages/FlightSchedule.jsx';
 import StationCapabilities from './pages/Stationcapabilities.jsx';
-import AdminPage from './pages/AdminPage.jsx';
-import EmployeeLoginPage from './pages/EmployeeLoginPage.jsx';
 import Footer from './components/Footer.jsx';
 import AboutUs from './pages/AboutUs.jsx';
 import SelectFlight from './pages/SelectFlight.jsx';
-import Dashboard from './pages/Dashboard.jsx';
+import Dashboard from './pages/DashboardUser.jsx';
+import DashboardAdmin from './pages/DashboardAdmin.jsx';
 import ManageBookings from './pages/ManageBookings.jsx';
-import PaymentPage from './pages/paymentPage.jsx';
-import StripePaymentPage from './pages/StripePayment.jsx';
+import PaymentPage from './pages/PaymentPage.jsx';
+import StripePaymentPage from './pages/StripePaymentPage.jsx';
 import BookingConfirmation from './pages/BookingConfirmation.jsx';
 import CustomerService from './pages/CustomerService.jsx';
 import AdminCusServ from './components/AdminCusServ.jsx';
 import StationInput from './pages/StationInput.jsx';
-
+import ConfirmationPage from './components/ConfirmationPage.jsx';
 
 const App = () => {
   const {authUser,checkAuth,isCheckingAuth} = useAuthStore();
@@ -50,8 +49,6 @@ const App = () => {
       <main className='flex-grow mt-20'>
       <Routes>
         <Route path='/' element={<HomePage/>}/>
-        <Route path='/employee-login' element={<EmployeeLoginPage/>}/>
-        <Route path='/admin' element={<AdminPage/>}/>
         <Route path='/admin/customer-service' element={<AdminCusServ/>}/>
         <Route path='/signup' element={!authUser ? <SignUpPage/> : <Navigate to="/"/>}/>
         <Route path='/login' element={!authUser ? <LoginPage/> : <Navigate to="/"/>}/>
@@ -61,6 +58,7 @@ const App = () => {
         <Route path='/select' element={authUser ? <SelectFlight/> : <Navigate to='/login'/>}/>
         <Route path='/payment' element={authUser ? <PaymentPage/> : <Navigate to='/login'/>}/>
         <Route path="/stripe-payment" element={authUser ? <StripePaymentPage /> : <Navigate to="/login" />} />
+        <Route path="/confirmation" element={<ConfirmationPage />} />
         <Route path="/booking-confirmation" element={authUser ? <BookingConfirmation /> : <Navigate to="/login" />} />
         <Route path='/tracking' element={<TrackingPage/>}/>
         <Route path='/tracking/:flightNumber' element={<TrackingPage/>}/>
@@ -69,7 +67,8 @@ const App = () => {
         <Route path='/manage-bookings' element={<ManageBookings/>}/>
         <Route path='/Station-Capabilities' element={<StationCapabilities/>}/>
         <Route path='/Station-Input' element={<StationInput/>}/>
-        <Route path='/admin-dashboard' element={<Dashboard/>}/>
+        <Route path='/dashboard' element={authUser ? <Dashboard/> : <LoginPage/>}/>
+        <Route path='/admin-dashboard' element={authUser ? <DashboardAdmin/> : <LoginPage/>}/>
         <Route path='/help' element={<CustomerService/>}/>
         <Route path='/Aboutus' element={<AboutUs/>}/> 
       </Routes>

@@ -8,7 +8,7 @@ import authRoutes from "./routes/auth.route.js";
 import aviationRoutes from "./routes/aviation.routes.js";
 import cargoRoutes from "./routes/cargo.route.js";
 import feedbackRoutes from "./controllers/custserv.controller.js";
-import paymentRoutes from "./routes/payment.route.js";
+import paymentRoutes from './routes/payment.route.js';
 import stationRoutes from "./routes/station.route.js";
 
 dotenv.config();
@@ -31,7 +31,7 @@ app.use("/api/aviation", aviationRoutes);
 app.use("/api", cargoRoutes);
 app.use("/api", stationRoutes);
 app.use("/api/feedback", feedbackRoutes);
-app.use("/api/payment", paymentRoutes);
+app.use('/api/payment', paymentRoutes);
 
 app.listen(PORT, () => {
   console.log("server is running on PORT:" + PORT);
