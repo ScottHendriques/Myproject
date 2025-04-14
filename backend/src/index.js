@@ -10,6 +10,7 @@ import cargoRoutes from "./routes/cargo.route.js";
 import feedbackRoutes from "./controllers/custserv.controller.js";
 import paymentRoutes from './routes/payment.route.js';
 import stationRoutes from "./routes/station.route.js";
+import adminRoutes from "./routes/admin.route.js";
 
 dotenv.config();
 const API_KEY = process.env.AVIATIONSTACK_API_KEY;
@@ -32,6 +33,7 @@ app.use("/api", cargoRoutes);
 app.use("/api", stationRoutes);
 app.use("/api/feedback", feedbackRoutes);
 app.use('/api/payment', paymentRoutes);
+app.use("/api", adminRoutes);
 
 app.listen(PORT, () => {
   console.log("server is running on PORT:" + PORT);

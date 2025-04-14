@@ -1,11 +1,19 @@
 import React, { useEffect, useState } from "react";
 import { useAuthStore } from "../store/useAuthStore";
-import { ChevronDown, ChevronUp } from "lucide-react";
+import {
+  ChevronDown,
+  ChevronUp,
+  Ruler,
+  Box,
+  Weight,
+  Tag,
+  Package,
+} from "lucide-react";
 
 const ManageBookings = () => {
   const { authUser } = useAuthStore();
   const [bookings, setBookings] = useState([]);
-  const [expandedBooking, setExpandedBooking] = useState(null); // Track which booking is expanded
+  const [expandedBooking, setExpandedBooking] = useState(null);
 
   useEffect(() => {
     const fetchBookings = async () => {
@@ -26,65 +34,104 @@ const ManageBookings = () => {
   }, [authUser]);
 
   const toggleDetails = (bookingId) => {
-    setExpandedBooking((prev) => (prev === bookingId ? null : bookingId)); // Toggle expanded state
+    setExpandedBooking((prev) => (prev === bookingId ? null : bookingId));
   };
 
-  const specialHandlingCodes = ["SHC001", "SHC002", "SHC003", "SHC004", "SHC005"];
-
   return (
-    <div className="min-h-screen pt-20">
-      <div className="max-w-4xl mx-auto p-4 py-8">
-        <h1 className="text-2xl font-semibold text-center mb-6">Manage Your Bookings</h1>
+    <div className="min-h-screen bg-base-100 flex items-center justify-center py-12">
+      <div className="max-w-4xl w-full mx-auto p-6">
+        <h1 className="text-3xl font-bold text-center text-base-content mb-8">
+          Manage Your Bookings
+        </h1>
 
         {bookings.length === 0 ? (
-          <p className="text-center text-gray-500">No bookings found.</p>
+          <p className="text-center text-zinc-400 text-lg">No bookings found.</p>
         ) : (
           <div className="space-y-4">
             {bookings.map((booking) => (
-              <div key={booking._id} className="bg-white p-4 rounded-lg shadow-md">
+              <div
+                key={booking._id}
+                className="bg-base-300 p-6 rounded-xl shadow-md border border-base-200"
+              >
                 <div className="flex justify-between items-center">
-                  <div>
-                    <p>
-                      <strong>From:</strong> {booking.shippingFrom} <strong>To:</strong> {booking.shippingTo}
+                  <div className="space-y-1">
+                    <p className="text-yellow-500">
+                      <span className="font-semibold">From:</span> {booking.shippingFrom}{" "}
+                      <span className="font-semibold">To:</span> {booking.shippingTo}
                     </p>
-                    <p>
-                      <strong>Date:</strong> {new Date(booking.date).toLocaleDateString()}
+                    <p className="text-blue-500">
+                      <span className="font-semibold">Date:</span>{" "}
+                      {new Date(booking.date).toLocaleDateString()}
                     </p>
-                    <p>
-                      <strong>Total Weight:</strong> {booking.totalWeight} kg
+                    <p className="text-base-content">
+                      <span className="font-semibold">Total Weight:</span> {booking.totalWeight} kg
                     </p>
                   </div>
                   <button
                     onClick={() => toggleDetails(booking._id)}
-                    className="text-gray-500 hover:text-gray-700"
+                    className="text-blue-600 hover:text-blue-800 transition duration-200 p-2 rounded-full hover:bg-base-200"
                   >
-                    {expandedBooking === booking._id ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+                    {expandedBooking === booking._id ? (
+                      <ChevronUp size={24} />
+                    ) : (
+                      <ChevronDown size={24} />
+                    )}
                   </button>
                 </div>
 
                 {expandedBooking === booking._id && (
-                  <div className="mt-4 border-t pt-4 text-sm text-gray-600">
-                    <p>
-                      <strong>Height:</strong> {booking.height} cm
-                    </p>
-                    <p>
-                      <strong>Width:</strong> {booking.width} cm
-                    </p>
-                    <p>
-                      <strong>Length:</strong> {booking.length} cm
-                    </p>
-                    <p>
-                      <strong>Pieces:</strong> {booking.pieces}
-                    </p>
-                    <p>
-                      <strong>Gross Weight:</strong> {booking.grossWeight} kg
-                    </p>
-                    <p>
-                      <strong>Promo Code:</strong> {booking.promoCode || "N/A"}
-                    </p>
-                    <p>
-                      <strong>Item:</strong> {booking.item}
-                    </p>
+                  <div className="mt-4 border-t border-base-200 pt-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 text-sm text-zinc-400">
+                      <div className="flex items-center gap-2">
+                        <Ruler className="w-5 h-5 text-blue-500" />
+                        <span>
+                          <span className="font-semibold text-base-content">Height:</span>{" "}
+                          {booking.height} cm
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Ruler className="w-5 h-5 text-blue-500" />
+                        <span>
+                          <span className="font-semibold text-base-content">Width:</span>{" "}
+                          {booking.width} cm
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Ruler className="w-5 h-5 text-blue-500" />
+                        <span>
+                          <span className="font-semibold text-base-content">Length:</span>{" "}
+                          {booking.length} cm
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Box className="w-5 h-5 text-blue-500" />
+                        <span>
+                          <span className="font-semibold text-base-content">Pieces:</span>{" "}
+                          {booking.pieces}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Weight className="w-5 h-5 text-blue-500" />
+                        <span>
+                          <span className="font-semibold text-base-content">Gross Weight:</span>{" "}
+                          {booking.grossWeight} kg
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Tag className="w-5 h-5 text-blue-500" />
+                        <span>
+                          <span className="font-semibold text-base-content">Promo Code:</span>{" "}
+                          {booking.promoCode || "N/A"}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2 sm:col-span-2 lg:col-span-3">
+                        <Package className="w-5 h-5 text-blue-500" />
+                        <span>
+                          <span className="font-semibold text-base-content">Item:</span>{" "}
+                          {booking.item}
+                        </span>
+                      </div>
+                    </div>
                   </div>
                 )}
               </div>

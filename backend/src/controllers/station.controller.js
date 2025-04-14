@@ -35,8 +35,8 @@ export const getStation = async (req, res) => {
   }
   try {
     const station = await Station.findOne({
-      country: { $regex: `^${country.trim()}$`, $options: "i" }, // Case-insensitive match
-      state: { $regex: `^${state.trim()}$`, $options: "i" }, // Case-insensitive match
+      country: { $regex: `^${country.trim()}$`, $options: "i" }, 
+      state: { $regex: `^${state.trim()}$`, $options: "i" }, 
     });
     if (!station) {
       return res.status(404).json({ error: "Station not found" });

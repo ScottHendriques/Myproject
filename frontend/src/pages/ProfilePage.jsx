@@ -1,10 +1,12 @@
 import { useState } from "react";
 import { useAuthStore } from "../store/useAuthStore";
 import { Camera, Mail, User } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const ProfilePage = () => {
   const { authUser, isUpdatingProfile, updateProfile } = useAuthStore();
   const [selectedImg, setSelectedImg] = useState(null);
+  const navigate = useNavigate();
 
   const handleImageUpload = async (e) => {
     const file = e.target.files[0];
@@ -21,16 +23,16 @@ const ProfilePage = () => {
     };
   };
 
+  const handleDashboardRedirect = () => {
+    if (authUser?.role === "admin") {
+      navigate("/admin/dashboard");
+    } else {
+      navigate("/dashboard");
+    }
+  };
+
   return (
     <div className="min-h-screen flex-col items-center pt-20">
-      {/* <div className="container w-full">
-        <button
-          onClick={() => navigate("/managebookings")}
-          className="w-60 mt-6 mx-auto flex items-center pl-10 bg-blue-600 hover:bg-blue-700 text-white  py-2 rounded-lg transition"
-        >
-          Manage Bookings
-        </button>
-      </div> */}
       <div className="max-w-2xl mx-auto p-4 py-8">
         <div className="bg-base-300 rounded-xl p-6 space-y-8">
           <div className="text-center">
@@ -39,7 +41,6 @@ const ProfilePage = () => {
           </div>
 
           {/* avatar upload section */}
-
           <div className="flex flex-col items-center gap-4">
             <div className="relative">
               <img
@@ -92,7 +93,7 @@ const ProfilePage = () => {
           </div>
 
           <div className="mt-6 bg-base-300 rounded-xl p-6">
-            <h2 className="text-lg font-medium  mb-4">Account Information</h2>
+            <h2 className="text-lg font-medium mb-4">Account Information</h2>
             <div className="space-y-3 text-sm">
               <div className="flex items-center justify-between py-2 border-b border-zinc-700">
                 <span>Member Since</span>
@@ -103,6 +104,12 @@ const ProfilePage = () => {
                 <span className="text-green-500">Active</span>
               </div>
             </div>
+            <button
+              onClick={handleDashboardRedirect}
+              className="w-full mt-6 flex items-center justify-center bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg transition"
+            >
+              Go to Dashboard
+            </button>
           </div>
         </div>
       </div>

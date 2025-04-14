@@ -166,7 +166,7 @@ const Dashboard = () => {
           <h3 className="text-lg font-semibold">Recent bookings</h3>
           <button
             className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition"
-            onClick={() => navigate("/managebookings")}
+            onClick={() => navigate("/manage-bookings")}
           >
             Manage
           </button>

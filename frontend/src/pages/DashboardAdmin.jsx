@@ -3,127 +3,132 @@ import { Shield, Gauge, Package, Users, LogOut, MessageCircle } from 'lucide-rea
 import { useAuthStore } from '../store/useAuthStore';
 import { useNavigate } from 'react-router-dom';
 import { axiosInstance } from '../lib/axios';
+import toast from 'react-hot-toast';
 
 const DashboardAdmin = () => {
   const { authUser, logout } = useAuthStore();
   const [recentShipments, setRecentShipments] = useState([]);
   const [loadingShipments, setLoadingShipments] = useState(true);
+  const [shipmentsError, setShipmentsError] = useState(null);
   const [topCargoTypes, setTopCargoTypes] = useState([]);
   const [loadingCargoTypes, setLoadingCargoTypes] = useState(true);
+  const [cargoError, setCargoError] = useState(null);
   const [topRoutes, setTopRoutes] = useState([]);
   const [loadingRoutes, setLoadingRoutes] = useState(true);
+  const [routesError, setRoutesError] = useState(null);
   const [totalShipments, setTotalShipments] = useState(0);
   const [loadingTotalShipments, setLoadingTotalShipments] = useState(true);
+  const [totalShipmentsError, setTotalShipmentsError] = useState(null);
   const [reviewingFeedbacks, setReviewingFeedbacks] = useState(0);
   const [loadingReviewingFeedbacks, setLoadingReviewingFeedbacks] = useState(true);
   const [pendingFeedbacks, setPendingFeedbacks] = useState(0);
   const [loadingPendingFeedbacks, setLoadingPendingFeedbacks] = useState(true);
   const [approvedFeedbacks, setApprovedFeedbacks] = useState(0);
   const [loadingApprovedFeedbacks, setLoadingApprovedFeedbacks] = useState(true);
-  const [handledFeedbacks, setHandledFeedbacks] = useState(0);
-  const [loadingHandledFeedbacks, setLoadingHandledFeedbacks] = useState(true);
+  const [feedbackError, setFeedbackError] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
+    if (!authUser || !authUser._id) {
+      toast.error('Please log in to view the dashboard');
+      navigate('/login');
+      return;
+    }
+
     const fetchRecentShipments = async () => {
-      if (!authUser || !authUser._id) return;
+      setLoadingShipments(true);
       try {
-        const res = await axiosInstance.get(`/admin/recent`);
+        const res = await axiosInstance.get('/admin/recent');
         setRecentShipments(res.data);
+        setShipmentsError(null);
       } catch (error) {
         console.error('Error fetching recent shipments:', error);
+        setShipmentsError('Failed to load recent shipments');
+        setRecentShipments([]);
       } finally {
         setLoadingShipments(false);
       }
     };
-    fetchRecentShipments();
-  }, [authUser]);
 
-  useEffect(() => {
     const fetchTopCargoTypes = async () => {
-      if (!authUser || !authUser._id) return;
+      setLoadingCargoTypes(true);
       try {
-        const res = await axiosInstance.get(`/admin/top-cargo`);
+        const res = await axiosInstance.get('/admin/top-cargo');
         setTopCargoTypes(res.data);
+        setCargoError(null);
       } catch (error) {
         console.error('Error fetching top cargo types:', error);
+        setCargoError('Failed to load top cargo types');
         setTopCargoTypes([]);
       } finally {
         setLoadingCargoTypes(false);
       }
     };
-    fetchTopCargoTypes();
-  }, [authUser]);
 
-  useEffect(() => {
     const fetchTopRoutes = async () => {
-      if (!authUser || !authUser._id) return;
+      setLoadingRoutes(true);
       try {
-        const res = await axiosInstance.get(`/admin/top-routes`);
+        const res = await axiosInstance.get('/admin/top-routes');
         setTopRoutes(res.data);
+        setRoutesError(null);
       } catch (error) {
         console.error('Error fetching top routes:', error);
+        setRoutesError('Failed to load top routes');
         setTopRoutes([]);
       } finally {
         setLoadingRoutes(false);
       }
     };
-    fetchTopRoutes();
-  }, [authUser]);
 
-  useEffect(() => {
     const fetchTotalShipments = async () => {
-      if (!authUser || !authUser._id) return;
+      setLoadingTotalShipments(true);
       try {
-        const res = await axiosInstance.get(`/admin/total-shipments`);
+        const res = await axiosInstance.get('/admin/total-shipments');
         setTotalShipments(res.data.totalShipments);
+        setTotalShipmentsError(null);
       } catch (error) {
         console.error('Error fetching total shipments:', error);
+        setTotalShipmentsError('Failed to load total shipments');
+        setTotalShipments(0);
       } finally {
         setLoadingTotalShipments(false);
       }
     };
-    fetchTotalShipments();
-  }, [authUser]);
 
-  useEffect(() => {
-    const fetchFeedbacks = async () => {
-      if (!authUser || !authUser._id) return;
+    const fetchFeedbackCounts = async () => {
+      setLoadingReviewingFeedbacks(true);
+      setLoadingPendingFeedbacks(true);
+      setLoadingApprovedFeedbacks(true);
       try {
-        const res = await axiosInstance.get('/api/feedback/getAllFeedback');
-        const reviewingCount = res.data.filter(
+        const pendingRes = await axiosInstance.get('/feedback/pending');
+        const approvedRes = await axiosInstance.get('/feedback/approved');
+        const reviewingRes = await axiosInstance.get('/feedback/getAllFeedback');
+        const reviewingCount = reviewingRes.data.filter(
           (fb) => fb.status === 'Pending' || fb.status === 'Reviewing'
         ).length;
-        const pendingCount = res.data.filter((fb) => fb.status === 'Pending').length;
-        const approvedCount = res.data.filter((fb) => fb.status === 'Approved').length;
+        setPendingFeedbacks(pendingRes.data.count);
+        setApprovedFeedbacks(approvedRes.data.count);
         setReviewingFeedbacks(reviewingCount);
-        setPendingFeedbacks(pendingCount);
-        setApprovedFeedbacks(approvedCount);
+        setFeedbackError(null);
       } catch (error) {
-        console.error('Error fetching feedbacks:', error);
+        console.error('Error fetching feedback counts:', error);
+        setFeedbackError('Failed to load feedback data');
+        setPendingFeedbacks(0);
+        setApprovedFeedbacks(0);
+        setReviewingFeedbacks(0);
       } finally {
         setLoadingReviewingFeedbacks(false);
         setLoadingPendingFeedbacks(false);
         setLoadingApprovedFeedbacks(false);
       }
     };
-    fetchFeedbacks();
-  }, [authUser]);
 
-  useEffect(() => {
-    const fetchHandledFeedbacks = async () => {
-      if (!authUser || !authUser._id) return;
-      try {
-        const res = await axiosInstance.get(`/api/feedback/handled/${authUser._id}`);
-        setHandledFeedbacks(res.data.count);
-      } catch (error) {
-        console.error('Error fetching handled feedbacks:', error);
-      } finally {
-        setLoadingHandledFeedbacks(false);
-      }
-    };
-    fetchHandledFeedbacks();
-  }, [authUser]);
+    fetchRecentShipments();
+    fetchTopCargoTypes();
+    fetchTopRoutes();
+    fetchTotalShipments();
+    fetchFeedbackCounts();
+  }, [authUser, navigate]);
 
   return (
     <div className="min-h-screen bg-base-100 py-12 px-6">
@@ -152,6 +157,8 @@ const DashboardAdmin = () => {
             </h3>
             {loadingReviewingFeedbacks ? (
               <p className="text-base-content/70 mt-2">Loading...</p>
+            ) : feedbackError ? (
+              <p className="text-error mt-2">{feedbackError}</p>
             ) : (
               <div className="text-center mt-4">
                 <p className="text-2xl font-semibold text-warning">{reviewingFeedbacks}</p>
@@ -172,6 +179,8 @@ const DashboardAdmin = () => {
             </h3>
             {loadingPendingFeedbacks ? (
               <p className="text-base-content/70 mt-2">Loading...</p>
+            ) : feedbackError ? (
+              <p className="text-error mt-2">{feedbackError}</p>
             ) : (
               <div className="text-center mt-4">
                 <p className="text-2xl font-semibold text-warning">{pendingFeedbacks}</p>
@@ -192,6 +201,8 @@ const DashboardAdmin = () => {
             </h3>
             {loadingApprovedFeedbacks ? (
               <p className="text-base-content/70 mt-2">Loading...</p>
+            ) : feedbackError ? (
+              <p className="text-error mt-2">{feedbackError}</p>
             ) : (
               <div className="text-center mt-4">
                 <p className="text-2xl font-semibold text-success">{approvedFeedbacks}</p>
@@ -207,9 +218,9 @@ const DashboardAdmin = () => {
           </div>
         </div>
 
-        {/* Second Row: Quick Actions, Enquiries Handled */}
-        <div className="grid gap-6 grid-cols-1 md:grid-cols-2">
-          <div className="bg-base-200 rounded-lg p-4">
+        {/* Second Row: Quick Actions Only */}
+        <div className="grid gap-6 grid-cols-1 md:grid-cols-1">
+          <div className="bg-base-200 rounded-lg p-4 max-w-md mx-auto">
             <h3 className="text-lg font-medium text-base-content mb-3">Quick Actions</h3>
             <div className="space-y-3">
               <button
@@ -226,26 +237,6 @@ const DashboardAdmin = () => {
               </button>
             </div>
           </div>
-
-          <div className="bg-base-200 rounded-lg p-4">
-            <h3 className="text-lg font-medium text-base-content flex items-center gap-2">
-              <MessageCircle size={20} className="text-warning" /> Enquiries Handled
-            </h3>
-            {loadingHandledFeedbacks ? (
-              <p className="text-base-content/70 mt-2">Loading...</p>
-            ) : (
-              <div className="text-center mt-4">
-                <p className="text-2xl font-semibold text-warning">{handledFeedbacks}</p>
-                <p className="text-base text-base-content/70">Handled by You</p>
-                <button
-                  className="btn btn-primary btn-sm mt-3"
-                  onClick={() => navigate('/admin/customer-service')}
-                >
-                  View Enquiries
-                </button>
-              </div>
-            )}
-          </div>
         </div>
 
         {/* Third Row: Total Shipments, Top Cargo Types, Top Routes */}
@@ -256,6 +247,8 @@ const DashboardAdmin = () => {
             </h3>
             {loadingTotalShipments ? (
               <p className="text-base-content/70 mt-2">Loading...</p>
+            ) : totalShipmentsError ? (
+              <p className="text-error mt-2">{totalShipmentsError}</p>
             ) : (
               <div className="text-center mt-4">
                 <p className="text-2xl font-semibold text-primary">{totalShipments}</p>
@@ -268,6 +261,8 @@ const DashboardAdmin = () => {
             <h3 className="text-lg font-medium text-base-content">Top Cargo Types</h3>
             {loadingCargoTypes ? (
               <p className="text-base-content/70 mt-2">Loading...</p>
+            ) : cargoError ? (
+              <p className="text-error mt-2">{cargoError}</p>
             ) : topCargoTypes.length > 0 ? (
               <ol className="mt-3 space-y-2">
                 {topCargoTypes.map((cargo, index) => (
@@ -291,6 +286,8 @@ const DashboardAdmin = () => {
             <h3 className="text-lg font-medium text-base-content">Top Routes</h3>
             {loadingRoutes ? (
               <p className="text-base-content/70 mt-2">Loading...</p>
+            ) : routesError ? (
+              <p className="text-error mt-2">{routesError}</p>
             ) : topRoutes.length > 0 ? (
               <ol className="mt-3 space-y-2">
                 {topRoutes.map((route, index) => (
@@ -325,6 +322,8 @@ const DashboardAdmin = () => {
             </div>
             {loadingShipments ? (
               <p className="text-base-content/70">Loading...</p>
+            ) : shipmentsError ? (
+              <p className="text-error">{shipmentsError}</p>
             ) : recentShipments.length > 0 ? (
               <div className="space-y-2">
                 {recentShipments.map((shipment) => (
@@ -343,6 +342,9 @@ const DashboardAdmin = () => {
                       </p>
                       <p className="text-sm text-base-content/70">
                         <strong>Weight:</strong> {shipment.totalWeight} kg
+                      </p>
+                      <p className="text-sm text-base-content/70">
+                        <strong>User:</strong> {shipment.user?.fullname || 'Unknown'}
                       </p>
                     </div>
                     <span
