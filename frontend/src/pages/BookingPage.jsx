@@ -2,16 +2,19 @@ import { useState } from "react";
 import { useThemeStore } from "@/store/useThemeStore";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useNavigate } from "react-router-dom";
-import { MapPin, Calendar, Package, Weight } from "lucide-react";
+import { MapPin, Calendar, Package, Weight, Eye } from "lucide-react";
 import AirportAutoComplete from "@/components/Autocomplete";
 import ItemDropDown from "../components/ItemDropDown";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import RulesModal from "../components/RulesModel";
+import { motion } from "framer-motion";
 
 const BookingPage = () => {
   const { theme } = useThemeStore();
   const { authUser } = useAuthStore();
   const navigate = useNavigate();
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [shippingFrom, setShippingFrom] = useState("");
   const [shippingTo, setShippingTo] = useState("");
   const [shippingDate, setShippingDate] = useState("");
@@ -24,6 +27,14 @@ const BookingPage = () => {
   const [item, setItem] = useState("");
   const [totalWeight, setTotalWeight] = useState(0);
   const [promoCode, setPromoCode] = useState("");
+
+  const handleOpenModal = () => {
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+  };
 
   const calculateSummary = () => {
     const parsedPieces = Number(pieces) || 0;
@@ -46,9 +57,8 @@ const BookingPage = () => {
   const { grossWeight, volume, density, chargeableWeight } = calculateSummary();
 
   const getFinalPrice = () => {
-    let basePrice = 90; 
+    let basePrice = 90;
 
-    // Promo Code Discount
     const promo = promoCode.trim().toUpperCase();
     if (promo === "CARGO20") {
       return (basePrice * 0.8).toFixed(2); // 20% off
@@ -87,7 +97,6 @@ const BookingPage = () => {
       return;
     }
 
-    // Ensure all form values exist and are valid
     if (!pieces || !length || !width || !height || !weight) {
       toast.error("Please fill in all cargo details.");
       return;
@@ -127,16 +136,17 @@ const BookingPage = () => {
   };
 
   return (
-    <form onSubmit={handleContinue} className="mt-20 p-6 bg-base-100 shadow-lg rounded-xl">
+    <form
+      onSubmit={handleContinue}
+      className="mt-20 p-6 bg-base-100 shadow-lg rounded-xl"
+    >
       <h2 className="text-2xl font-bold mb-4">Booking</h2>
       <div className="grid grid-cols-3 gap-4 mb-4">
         <div className="form-control">
           <label className="label">
             <span className="label-text">Shipping from</span>
           </label>
-          <
-
-div className="relative">
+          <div className="relative">
             <MapPin className="absolute top-3 left-3" />
             <AirportAutoComplete onSelect={setShippingFrom} />
           </div>
@@ -175,21 +185,39 @@ div className="relative">
           <div className="relative">
             <ItemDropDown onSelect={setItem} />
           </div>
-          <div className="relative">
-            <Weight className="absolute top-3 left-3" />
-            <input
-              type="number"
-              name="totalWeight"
-              placeholder="Total weight (kg)"
-              value={totalWeight}
-              onChange={(e) => setTotalWeight(Number(e.target.value))}
-              className="input input-bordered pl-10 w-full"
-              min="0"
-              step="0.01"
+          <div className="relative col-span-2">
+            <div className="flex items-center gap-4">
+              <div className="relative flex-1">
+                <Weight className="absolute top-3 left-3" />
+                <input
+                  type="number"
+                  name="totalWeight"
+                  placeholder="Total weight (kg)"
+                  value={totalWeight}
+                  onChange={(e) => setTotalWeight(Number(e.target.value))}
+                  className="input input-bordered pl-10 w-full"
+                  min="0"
+                  step="0.01"
+                />
+              </div>
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={handleOpenModal}
+                className="flex items-center px-4 py-2  rounded hover:bg-green-600 transition"
+              >
+                <Eye className="mr-2" /> View IATA Rules
+              </motion.button>
+            </div>
+            <RulesModal
+              isOpen={isModalOpen}
+              onClose={handleCloseModal}
+              rulesType="booking"
             />
           </div>
         </div>
       </div>
+
       {/* Cargo Details Section */}
       <div className="mt-4 p-4 border rounded-lg">
         <div className="grid grid-cols-5 gap-2">

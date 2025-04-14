@@ -1,12 +1,15 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import FlightMap from '../components/FlightMap';
-import { Truck, Search } from 'lucide-react';
+import { Truck, Search, Eye } from 'lucide-react';
+import RulesModal from '../components/RulesModel';
+import { motion } from 'framer-motion';
 
 const TrackingPage = () => {
   const [flightNumber, setFlightNumber] = useState('');
   const [flightData, setFlightData] = useState(null);
   const [error, setError] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const fetchFlightDetails = async () => {
     setError(null);
@@ -21,12 +24,20 @@ const TrackingPage = () => {
     }
   };
 
+  const handleOpenModal = () => {
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+  };
+
   return (
     <div className="flex flex-col items-center min-h-screen bg-base-100 font-montserrat py-20">
       <h1 className="text-4xl font-bold mb-8">
         Track your <span className="text-5xl font-bold italic text-primary">Shipment</span>
       </h1>
-      <div className="flex items-center mb-4 w-full max-w-md">
+      <div className="flex items-center mb-4 w-full max-w-md gap-2">
         <div className="relative flex-1">
           <input
             type="text"
@@ -42,11 +53,24 @@ const TrackingPage = () => {
         </div>
         <button
           onClick={fetchFlightDetails}
-          className="btn btn-primary ml-2 h-12 px-6"
+          className="btn btn-primary h-12 px-6"
         >
           Track
         </button>
+        <motion.button
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          onClick={handleOpenModal}
+          className="flex items-center px-4 py-2  rounded hover:bg-green-600 transition h-12"
+        >
+          <Eye className="mr-2" /> View IATA Rules
+        </motion.button>
       </div>
+      <RulesModal
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+        rulesType="tracking"
+      />
       <div className="text-center text-sm text-base-content/70 max-w-md mb-6">
         <p>Please enter the Airway Bill (AWB) assigned to your cargo shipment.</p>
       </div>
@@ -102,7 +126,6 @@ const TrackingPage = () => {
           <div className="p-4 border-t border-base-300 bg-base-100">
             <div className="flex justify-between items-center">
               <p className="text-xs text-base-content/70">Updated: Just now</p>
-              <button className="btn btn-primary btn-sm">View Full Details</button>
             </div>
           </div>
         </div>

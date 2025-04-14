@@ -106,7 +106,7 @@ const ProfilePage = () => {
             </div>
             <button
               onClick={handleDashboardRedirect}
-              className="w-full mt-6 flex items-center justify-center bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg transition"
+              className="w-full mt-6 flex items-center justify-center  hover:bg-purple-700 text-white py-2 rounded-lg transition"
             >
               Go to Dashboard
             </button>

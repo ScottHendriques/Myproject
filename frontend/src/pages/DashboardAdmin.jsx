@@ -35,6 +35,12 @@ const DashboardAdmin = () => {
       return;
     }
 
+    if (authUser.role !== 'admin') {
+      toast.error('You do not have permission to access this page');
+      navigate('/');
+      return;
+  }
+
     const fetchRecentShipments = async () => {
       setLoadingShipments(true);
       try {

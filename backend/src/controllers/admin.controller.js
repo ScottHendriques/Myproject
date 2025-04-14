@@ -1,3 +1,5 @@
+import Booking from "../models/shipment.model.js";
+
 // Get Recent Shipments (Admin)
 export const getAdminRecentShipments = async (req, res) => {
     try {

@@ -83,10 +83,10 @@ const FlightSchedule = () => {
         <div key={index} className="mt-6 p-4 border rounded-lg shadow-md flex justify-between items-center">
           <div className="text-center w-1/3">
             <PlaneTakeoff className="text-2xl mx-auto text-gray-700" />
-            <p className="text-lg font-semibold">{flight.departure?.airport || "Unknown"}</p>
-            <p className="text-sm text-gray-600">{flight.departure?.iataCode || "---"}</p>
+            <p className="text-lg font-semibold">{flight.departure?.iataCode?.toUpperCase() || "Unknown"}</p>
+            <p className="text-sm ">{flight.departure?.iataCode || "---"}</p>
             <p className="text-yellow-600 font-medium">{date}</p>
-            <p className="text-lg font-bold text-gray-800">{flight.departure?.scheduledTime || "--:--"}</p>
+            <p className="text-lg font-bold ">{flight.departure?.scheduledTime || "--:--"}</p>
           </div>
           <div className="text-center w-1/3">
             <p className="text-gray-600">Direct Flight</p>
@@ -94,10 +94,10 @@ const FlightSchedule = () => {
           </div>
           <div className="text-center w-1/3">
             <PlaneLanding className="text-2xl mx-auto text-gray-700" />
-            <p className="text-lg font-semibold">{flight.arrival?.airport || "Unknown"}</p>
-            <p className="text-sm text-gray-600">{flight.arrival?.iataCode || "---"}</p>
+            <p className="text-lg font-semibold">{flight.arrival?.iataCode?.toUpperCase() || "Unknown"}</p>
+            <p className="text-sm ">{flight.arrival?.iataCode || "---"}</p>
             <p className="text-yellow-600 font-medium">{date}</p>
-            <p className="text-lg font-bold text-gray-800">{flight.arrival?.scheduledTime || "--:--"}</p>
+            <p className="text-lg font-bold ">{flight.arrival?.scheduledTime || "--:--"}</p>
           </div>
         </div>
       ))}
