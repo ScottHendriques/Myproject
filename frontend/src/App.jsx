@@ -27,6 +27,7 @@ import CustomerService from './pages/CustomerService.jsx';
 import AdminCusServ from './components/AdminCusServ.jsx';
 import StationInput from './pages/StationInput.jsx';
 import ConfirmationPage from './components/ConfirmationPage.jsx';
+import ReviewShipments from './pages/ReviewShipments.jsx';
 
 // Admin Protected Route Component
 const AdminProtectedRoute = ({ element, authUser }) => {
@@ -62,6 +63,7 @@ const App = () => {
           <Route path="/" element={<HomePage />} />
           <Route path="/admin/dashboard" element={<AdminProtectedRoute authUser={authUser} element={<DashboardAdmin />} />}/>
           <Route path="/admin/customer-service" element={<AdminProtectedRoute authUser={authUser} element={<AdminCusServ />} />}/>
+          <Route path='/admin/ReviewShipments' element={<AdminProtectedRoute authUser={authUser} element={<ReviewShipments />} />}/>
           <Route path="/Station-Input" element={<AdminProtectedRoute authUser={authUser} element={<StationInput />} />}/>
           <Route path="/signup" element={!authUser ? <SignUpPage /> : <Navigate to="/" />} />
           <Route path="/login" element={!authUser ? <LoginPage /> : <Navigate to="/" />} />

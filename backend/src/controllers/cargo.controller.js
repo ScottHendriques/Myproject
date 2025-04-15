@@ -1,37 +1,128 @@
 import Booking from "../models/shipment.model.js";
 import mongoose from "mongoose";
-import Stripe from 'stripe';
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
-
-// Cargo Booking Data
-export const cargoData = async (req, res) => {
+// Create Booking After Payment
+export const createBooking = async (req, res) => {
   const {
-    shippingFrom, shippingTo, date, item,
-    totalWeight, length, width, height,
-    weight, grossWeight, pieces
+    userId,
+    shippingFrom,
+    shippingTo,
+    preferredShippingDate,
+    apiDate,
+    item,
+    totalWeight,
+    grossWeight,
+    pieces,
+    length,
+    width,
+    height,
+    weight,
+    promoCode,
+    finalPrice,
+    flightId,
+    paymentIntentId,
   } = req.body;
-  const userId = req.params.userId;
 
   if (!mongoose.Types.ObjectId.isValid(userId)) {
     return res.status(400).json({ message: "Invalid user ID" });
   }
-  
+
   try {
-    console.log("Received data:", req.body);
-    
+    console.log("Creating booking with data:", req.body);
+
     const booking = new Booking({
-      shippingFrom, shippingTo, date, item,
-      totalWeight, grossWeight, pieces,
-      length, width, height, weight,
       user: userId,
+      shippingFrom,
+      shippingTo,
+      preferredShippingDate,
+      apiDate,
+      item,
+      totalWeight,
+      grossWeight,
+      pieces,
+      length,
+      width,
+      height,
+      weight,
+      promoCode,
+      finalPrice,
+      flightId,
+      paymentIntentId,
+      status: "confirmed",
     });
-    
+
     await booking.save();
+    console.log("Booking saved successfully:", booking._id);
+    res.status(201).json({ message: "Booking created successfully", booking });
+  } catch (error) {
+    console.error("Error creating booking:", {
+      message: error.message,
+      stack: error.stack,
+      details: error.errors || {},
+    });
+    res.status(500).json({ message: "Failed to create booking", error: error.message });
+  }
+};
+
+// Cargo Booking Data (Updated for Pre-Booking or Draft)
+export const cargoData = async (req, res) => {
+  const {
+    shippingFrom,
+    shippingTo,
+    preferredShippingDate,
+    apiDate,
+    item,
+    totalWeight,
+    grossWeight,
+    pieces,
+    length,
+    width,
+    height,
+    weight,
+  } = req.body;
+  const userId = req.params.userId;
+
+  console.log("Incoming /cargo/:userId request from:", {
+    url: req.originalUrl,
+    method: req.method,
+    headers: req.headers,
+    body: req.body,
+    referer: req.headers.referer,
+    stackTrace: new Error().stack, // Added to trace the server-side call
+  });
+
+  if (!mongoose.Types.ObjectId.isValid(userId)) {
+    return res.status(400).json({ message: "Invalid user ID" });
+  }
+
+  try {
+    const booking = new Booking({
+      shippingFrom,
+      shippingTo,
+      preferredShippingDate,
+      apiDate,
+      item,
+      totalWeight,
+      grossWeight,
+      pieces,
+      length,
+      width,
+      height,
+      weight,
+      user: userId,
+      status: "pending",
+    });
+
+    await booking.save();
+    console.log("Cargo booking saved successfully:", booking._id);
     res.status(200).json({ message: "Booking saved successfully", booking });
   } catch (error) {
-    console.error("Error in cargoData:", error);
-    res.status(500).json({ message: "Server error", error });
+    console.error("Error in cargoData:", {
+      message: error.message,
+      stack: error.stack,
+      details: error.errors || {},
+    });
+    res.status(500).json({ message: "Server error", error: error.message });
   }
 };
 
@@ -43,12 +134,12 @@ export const getRecentBookings = async (req, res) => {
   }
   try {
     const bookings = await Booking.find({ user: userId })
-      .sort({ date: -1 })
+      .sort({ createdAt: -1 })
       .limit(5);
     res.status(200).json(bookings);
   } catch (error) {
     console.error("Error fetching recent bookings:", error);
-    res.status(500).json({ message: "Server error", error });
+    res.status(500).json({ message: "Server error", error: error.message });
   }
 };
 
@@ -68,7 +159,7 @@ export const getTopProducts = async (req, res) => {
     res.status(200).json(topProducts);
   } catch (error) {
     console.error("Error fetching top products:", error);
-    res.status(500).json({ message: "Server error", error });
+    res.status(500).json({ message: "Server error", error: error.message });
   }
 };
 
@@ -88,7 +179,7 @@ export const getTopDestinations = async (req, res) => {
     res.status(200).json(topDestinations);
   } catch (error) {
     console.error("Error fetching top destinations:", error);
-    res.status(500).json({ message: "Server error", error });
+    res.status(500).json({ message: "Server error", error: error.message });
   }
 };
 
@@ -103,7 +194,6 @@ export const getTotalBookings = async (req, res) => {
     res.status(200).json({ totalBookings });
   } catch (error) {
     console.error("Error fetching total bookings:", error);
-    res.status(500).json({ message: "Server error", error });
+    res.status(500).json({ message: "Server error", error: error.message });
   }
 };
-

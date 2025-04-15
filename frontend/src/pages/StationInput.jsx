@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { axiosInstance } from "../lib/axios";
 import { useThemeStore } from "@/store/useThemeStore";
 import { MapPin, Phone, Mail, Globe, Clock, User, PlusCircle, Trash2 } from "lucide-react";
-import { toast } from "react-toastify";
+import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 const StationInput = () => {
@@ -47,23 +47,25 @@ const StationInput = () => {
   };
 
   const validateForm = () => {
-    const newErrors = {};
-    if (!formData.country) newErrors.country = "Country is required.";
-    if (!formData.state) newErrors.state = "State is required.";
-    if (!formData.agent) newErrors.agent = "Agent is required.";
-    if (!formData.location) newErrors.location = "Location is required.";
-    if (!formData.phone) newErrors.phone = "Phone is required.";
-    if (!formData.email) newErrors.email = "Email is required.";
-    if (!formData.hours) newErrors.hours = "Hours are required.";
-    for (let contact of formData.contacts) {
-      if (!contact.name) newErrors[`contactName-${formData.contacts.indexOf(contact)}`] = "Contact name is required.";
-      if (!contact.title) newErrors[`contactTitle-${formData.contacts.indexOf(contact)}`] = "Contact title is required.";
-      if (!contact.phone) newErrors[`contactPhone-${formData.contacts.indexOf(contact)}`] = "Contact phone is required.";
-      if (!contact.email) newErrors[`contactEmail-${formData.contacts.indexOf(contact)}`] = "Contact email is required.";
-      if (!contact.hours) newErrors[`contactHours-${formData.contacts.indexOf(contact)}`] = "Contact hours are required.";
-    }
-    setError(Object.values(newErrors).join(" "));
-    return Object.keys(newErrors).length === 0;
+    const newErrors = [];
+    if (!formData.country) newErrors.push("Country is required.");
+    if (!formData.state) newErrors.push("State is required.");
+    if (!formData.agent) newErrors.push("Agent is required.");
+    if (!formData.location) newErrors.push("Location is required.");
+    if (!formData.phone) newErrors.push("Phone is required.");
+    if (!formData.email) newErrors.push("Email is required.");
+    if (!formData.hours) newErrors.push("Hours are required.");
+
+    formData.contacts.forEach((contact, index) => {
+      if (!contact.name) newErrors.push(`Contact ${index + 1}: Name is required.`);
+      if (!contact.title) newErrors.push(`Contact ${index + 1}: Title is required.`);
+      if (!contact.phone) newErrors.push(`Contact ${index + 1}: Phone is required.`);
+      if (!contact.email) newErrors.push(`Contact ${index + 1}: Email is required.`);
+      if (!contact.hours) newErrors.push(`Contact ${index + 1}: Hours is required.`);
+    });
+
+    setError(newErrors.join(" "));
+    return newErrors.length === 0;
   };
 
   const isValidUrl = (string) => {
@@ -79,13 +81,18 @@ const StationInput = () => {
     e.preventDefault();
     console.log("Form submitted with data:", formData);
 
-    if (!validateForm()) return;
+    if (!validateForm()) {
+      console.log("Validation failed, errors:", error);
+      toast.error("Please fill all required fields.");
+      return;
+    }
 
-    console.log("Attempting to send POST request to /stations");
+    console.log("Validation passed, sending POST request to /stations");
     try {
       const response = await axiosInstance.post("/stations", formData, { withCredentials: true });
       console.log("Server response:", response.data);
       toast.success("Station data saved successfully!");
+      console.log("Toast success triggered");
       setFormData({
         country: "",
         state: "",
@@ -101,11 +108,13 @@ const StationInput = () => {
       console.error("Error submitting data:", err.response ? err.response.data : err.message);
       const errorMsg = err.response?.data?.error || "Failed to save data. Please try again.";
       toast.error(errorMsg);
+      console.log("Toast error triggered:", errorMsg);
     }
   };
 
   return (
     <div className="flex flex-col items-center mt-10 p-10 min-h-screen bg-base-100 text-base-content">
+      <ToastContainer position="top-right" autoClose={5000} hideProgressBar={false} className="z-[9999]" />
       <h1 className="text-4xl font-semibold">Add Station Data</h1>
       <form onSubmit={handleSubmit} className="mt-6 w-full max-w-2xl space-y-6">
         <div className="form-control">
@@ -288,11 +297,7 @@ const StationInput = () => {
           </div>
         ))}
 
-        <button
-          type="button"
-          onClick={addContact}
-          className="btn btn-primary btn-sm mt-4"
-        >
+        <button type="button" onClick={addContact} className="btn btn-primary btn-sm mt-4">
           <PlusCircle size={18} /> Add Contact
         </button>
 

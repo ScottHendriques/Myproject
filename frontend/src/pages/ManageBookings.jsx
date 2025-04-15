@@ -1,3 +1,4 @@
+// ManageBookings.jsx
 import React, { useEffect, useState } from "react";
 import { useAuthStore } from "../store/useAuthStore";
 import {
@@ -37,6 +38,17 @@ const ManageBookings = () => {
     setExpandedBooking((prev) => (prev === bookingId ? null : bookingId));
   };
 
+  // Helper function to format date from string
+  const formatDate = (dateString) => {
+    if (!dateString || typeof dateString !== "string") return "N/A";
+    
+    // Attempt to parse the date string
+    const date = new Date(dateString);
+    
+    // Check if the date is valid
+    return isNaN(date.getTime()) ? "Invalid Date" : date.toLocaleDateString();
+  };
+
   return (
     <div className="min-h-screen bg-base-100 flex items-center justify-center py-12">
       <div className="max-w-4xl w-full mx-auto p-6">
@@ -61,7 +73,7 @@ const ManageBookings = () => {
                     </p>
                     <p className="text-blue-500">
                       <span className="font-semibold">Date:</span>{" "}
-                      {new Date(booking.date).toLocaleDateString()}
+                      {formatDate(booking.preferredShippingDate)}
                     </p>
                     <p className="text-base-content">
                       <span className="font-semibold">Total Weight:</span> {booking.totalWeight} kg

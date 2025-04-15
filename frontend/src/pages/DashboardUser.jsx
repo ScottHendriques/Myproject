@@ -1,8 +1,9 @@
+// DashboardUser.jsx
 import React, { useEffect, useState } from "react";
 import { ArrowUp, ArrowDown, Package, Plane } from "lucide-react";
 import { useAuthStore } from "../store/useAuthStore";
 import { useNavigate } from "react-router-dom";
-import { axiosInstance } from "../lib/axios"; 
+import { axiosInstance } from "../lib/axios";
 
 const Dashboard = () => {
   const { authUser } = useAuthStore();
@@ -86,6 +87,17 @@ const Dashboard = () => {
     fetchTotalBookings();
   }, [authUser]);
 
+  // Helper function to format date from string
+  const formatDate = (dateString) => {
+    if (!dateString || typeof dateString !== "string") return "N/A";
+    
+    // Attempt to parse the date string
+    const date = new Date(dateString);
+    
+    // Check if the date is valid
+    return isNaN(date.getTime()) ? "Invalid Date" : date.toLocaleDateString();
+  };
+
   return (
     <div className="p-6 min-h-screen grid gap-4 grid-cols-1 md:grid-cols-3 lg:grid-cols-4">
       {/* Booking Count Section */}
@@ -102,7 +114,7 @@ const Dashboard = () => {
           )}
         </div>
       </div>
-  
+
       {/* Top Product Section */}
       <div className="p-4 shadow-md rounded-lg border-2 border-gray-300">
         <div className="p-4">
@@ -124,7 +136,7 @@ const Dashboard = () => {
           )}
         </div>
       </div>
-  
+
       {/* Top Destination Section */}
       <div className="p-4 shadow-md rounded-lg border-2 border-gray-300">
         <div className="p-4">
@@ -146,7 +158,7 @@ const Dashboard = () => {
           )}
         </div>
       </div>
-  
+
       {/* Tracking Section */}
       <div className="p-4 flex flex-col items-center shadow-md rounded-lg border-2 border-gray-300">
         <div className="p-4 text-center">
@@ -159,7 +171,7 @@ const Dashboard = () => {
           </button>
         </div>
       </div>
-  
+
       {/* Recent Booking Section */}
       <div className="md:col-span-2 p-4 shadow-md rounded-lg border-2 border-gray-300">
         <div className="p-4">
@@ -177,10 +189,11 @@ const Dashboard = () => {
               {recentBookings.map((booking) => (
                 <li key={booking._id} className="p-2 border rounded-lg">
                   <p>
-                    <strong>From:</strong> {booking.shippingFrom} <strong>To:</strong> {booking.shippingTo}
+                    <strong>From:</strong> {booking.shippingFrom} <strong>To:</strong>{" "}
+                    {booking.shippingTo}
                   </p>
                   <p>
-                    <strong>Date:</strong> {new Date(booking.date).toLocaleDateString()}
+                    <strong>Date:</strong> {formatDate(booking.preferredShippingDate)}
                   </p>
                   <p>
                     <strong>Weight:</strong> {booking.totalWeight} kg
@@ -193,7 +206,7 @@ const Dashboard = () => {
           )}
         </div>
       </div>
-  
+
       {/* New Booking Section */}
       <div className="p-4 flex flex-col items-center shadow-md rounded-lg border-2 border-gray-300">
         <div className="p-4 text-center">

@@ -54,15 +54,15 @@ const PaymentPage = () => {
     }
   };
 
-  if (!price || !flightId) {
-    return <p>Invalid payment details. Please try again.</p>;
-  }
-
   return (
     <div className="p-6 text-center">
       <h1 className="text-2xl font-bold">Payment Details</h1>
       <p className="mt-4">Flight ID: {flightId}</p>
       <p className="mt-2">Price: EUR {price.toFixed(2)}</p>
+      <p className="mt-2">
+        Shipping: {bookingData.shippingFrom} → {bookingData.shippingTo}
+      </p>
+      <p className="mt-2">Date: {bookingData.preferredShippingDate}</p>
       <button
         className="bg-green-500 text-white px-4 py-2 rounded-lg mt-4 disabled:opacity-50"
         onClick={handlePayment}

@@ -1,7 +1,8 @@
 import { Link } from "react-router-dom";
 import { useAuthStore } from "../store/useAuthStore";
-import { LogOut, Settings, User, Landmark, Info, Headphones } from "lucide-react";
+import { LogOut, Settings, User, Landmark, Info, Headphones, LayoutDashboard} from "lucide-react";
 import png from "../images/logo-color.png";
+
 
 const Navbar = () => {
   const { logout, authUser } = useAuthStore();
@@ -25,6 +26,14 @@ const Navbar = () => {
 
             {/* Navigation Links */}
             <div className="flex items-center gap-4">
+              <Link
+                to={authUser?.role === "admin" ? "/admin/dashboard" : "/dashboard"}
+                className="btn btn-sm gap-2 transition-colors"
+              >
+                <LayoutDashboard className="w-5 h-5" />
+                <span className="hidden sm:inline">Dashboard</span>
+              </Link>
+
               {/* Station Capabilities Link */}
               <Link
                 to={authUser?.role === "admin" ? "/Station-Input" : "/Station-Capabilities"}

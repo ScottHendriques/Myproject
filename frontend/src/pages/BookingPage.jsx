@@ -5,8 +5,6 @@ import { useNavigate } from "react-router-dom";
 import { MapPin, Calendar, Package, Weight, Eye } from "lucide-react";
 import AirportAutoComplete from "@/components/Autocomplete";
 import ItemDropDown from "../components/ItemDropDown";
-import { toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 import RulesModal from "../components/RulesModel";
 import { motion } from "framer-motion";
 
@@ -17,7 +15,7 @@ const BookingPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [shippingFrom, setShippingFrom] = useState("");
   const [shippingTo, setShippingTo] = useState("");
-  const [shippingDate, setShippingDate] = useState("");
+  const [preferredShippingDate, setPreferredShippingDate] = useState("");
   const [pieces, setPieces] = useState("");
   const [length, setLength] = useState("");
   const [width, setWidth] = useState("");
@@ -25,8 +23,14 @@ const BookingPage = () => {
   const [weight, setWeight] = useState("");
   const [promoType, setPromoType] = useState("");
   const [item, setItem] = useState("");
-  const [totalWeight, setTotalWeight] = useState(0);
+  const [totalWeight, setTotalWeight] = useState("");
   const [promoCode, setPromoCode] = useState("");
+
+  // Get current date in YYYY-MM-DD format for API
+  const getCurrentDate = () => {
+    const today = new Date();
+    return today.toISOString().split("T")[0];
+  };
 
   const handleOpenModal = () => {
     setIsModalOpen(true);
@@ -61,13 +65,13 @@ const BookingPage = () => {
 
     const promo = promoCode.trim().toUpperCase();
     if (promo === "CARGO20") {
-      return (basePrice * 0.8).toFixed(2); // 20% off
+      return (basePrice * 0.8).toFixed(2);
     }
     if (promo === "CARGO10") {
-      return (basePrice * 0.9).toFixed(2); // 10% off
+      return (basePrice * 0.9).toFixed(2);
     }
     if (promo === "FREESHIP") {
-      return (basePrice * 0.7).toFixed(2); // 30% off
+      return (basePrice * 0.7).toFixed(2);
     }
     return basePrice.toFixed(2);
   };
@@ -76,15 +80,16 @@ const BookingPage = () => {
     const parsedTotalWeight = Number(totalWeight) || 0;
     const parsedPieces = Number(pieces) || 0;
     const parsedWeight = Number(weight) || 0;
-    if (
-      parsedPieces * parsedWeight > parsedTotalWeight &&
-      parsedTotalWeight > 0
-    ) {
-      toast.error(
-        `Total weight per piece (${
-          parsedWeight * parsedPieces
-        } kg) cannot exceed declared total weight (${parsedTotalWeight} kg).`
-      );
+    if (parsedTotalWeight === 0) {
+      // Allow totalWeight to be optional or zero
+      return true;
+    }
+    if (parsedPieces * parsedWeight > parsedTotalWeight) {
+      console.error("Weight validation failed:", {
+        pieces: parsedPieces,
+        weight: parsedWeight,
+        totalWeight: parsedTotalWeight,
+      });
       return false;
     }
     return true;
@@ -92,15 +97,41 @@ const BookingPage = () => {
 
   const handleContinue = (e) => {
     e.preventDefault();
+    console.log("Continue button clicked", {
+      shippingFrom,
+      shippingTo,
+      preferredShippingDate,
+      pieces,
+      length,
+      width,
+      height,
+      weight,
+      totalWeight,
+      item,
+      promoCode,
+      authUser,
+    });
+
     if (!authUser || !authUser._id) {
-      toast.error("User not authenticated!");
+      console.error("Authentication failed:", { authUser });
+      return;
+    }
+
+    if (!shippingFrom || !shippingTo) {
+      console.error("Missing locations:", { shippingFrom, shippingTo });
+      return;
+    }
+
+    if (!preferredShippingDate) {
+      console.error("Missing date:", { preferredShippingDate });
       return;
     }
 
     if (!pieces || !length || !width || !height || !weight) {
-      toast.error("Please fill in all cargo details.");
+      console.error("Missing cargo details:", { pieces, length, width, height, weight });
       return;
     }
+
     if (
       Number(pieces) <= 0 ||
       Number(length) <= 0 ||
@@ -108,19 +139,58 @@ const BookingPage = () => {
       Number(height) <= 0 ||
       Number(weight) <= 0
     ) {
-      toast.error("All cargo details must be positive numbers.");
+      console.error("Invalid cargo details:", {
+        pieces: Number(pieces),
+        length: Number(length),
+        width: Number(width),
+        height: Number(height),
+        weight: Number(weight),
+      });
       return;
     }
-    if (!validateWeight()) return;
+
+    if (!item) {
+      console.error("Missing item:", { item });
+      return;
+    }
+
+    if (!validateWeight()) {
+      toast.error("Weight validation failed. Please check your inputs.");
+      console.error("Weight validation failed in handleContinue");
+      return;
+    }
+
+    const apiDate = getCurrentDate();
+
+    console.log("All validations passed, navigating to /select", {
+      bookingData: {
+        shippingFrom,
+        shippingTo,
+        preferredShippingDate,
+        apiDate,
+        item,
+        totalWeight: parseFloat(totalWeight) || 0,
+        grossWeight: parseFloat(grossWeight),
+        pieces: parseInt(pieces, 10),
+        length: parseFloat(length),
+        width: parseFloat(width),
+        height: parseFloat(height),
+        weight: parseFloat(weight),
+        promoCode,
+        finalPrice: getFinalPrice(),
+        userId: authUser._id,
+      },
+    });
 
     navigate("/select", {
       state: {
         bookingData: {
           shippingFrom,
           shippingTo,
-          shippingDate,
+          preferredShippingDate,
+          apiDate,
           item,
-          totalWeight: parseFloat(totalWeight),
+          totalWeight: parseFloat(totalWeight) || 0,
           grossWeight: parseFloat(grossWeight),
           pieces: parseInt(pieces, 10),
           length: parseFloat(length),
@@ -162,16 +232,17 @@ const BookingPage = () => {
         </div>
         <div className="form-control">
           <label className="label">
-            <span className="label-text">Shipping date</span>
+            <span className="label-text">Preferred shipping date</span>
           </label>
           <div className="relative">
             <Calendar className="absolute top-3 left-3" />
             <input
               type="date"
               name="date"
-              value={shippingDate}
-              onChange={(e) => setShippingDate(e.target.value)}
+              value={preferredShippingDate}
+              onChange={(e) => setPreferredShippingDate(e.target.value)}
               className="input input-bordered pl-10 w-full"
+              min={getCurrentDate()}
             />
           </div>
         </div>
@@ -194,7 +265,7 @@ const BookingPage = () => {
                   name="totalWeight"
                   placeholder="Total weight (kg)"
                   value={totalWeight}
-                  onChange={(e) => setTotalWeight(Number(e.target.value))}
+                  onChange={(e) => setTotalWeight(e.target.value)}
                   className="input input-bordered pl-10 w-full"
                   min="0"
                   step="0.01"
@@ -204,7 +275,7 @@ const BookingPage = () => {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={handleOpenModal}
-                className="flex items-center px-4 py-2  rounded hover:bg-green-600 transition"
+                className="flex items-center px-4 py-2 rounded hover:bg-green-600 transition"
               >
                 <Eye className="mr-2" /> View IATA Rules
               </motion.button>
@@ -218,7 +289,6 @@ const BookingPage = () => {
         </div>
       </div>
 
-      {/* Cargo Details Section */}
       <div className="mt-4 p-4 border rounded-lg">
         <div className="grid grid-cols-5 gap-2">
           <label className="label">
@@ -244,11 +314,7 @@ const BookingPage = () => {
             placeholder="Pieces"
             className="input input-bordered"
             value={pieces}
-            onChange={(e) => {
-              const newPieces = Number(e.target.value);
-              setPieces(newPieces);
-              if (!validateWeight()) setPieces("");
-            }}
+            onChange={(e) => setPieces(e.target.value)}
             min="1"
             step="1"
           />
@@ -258,7 +324,7 @@ const BookingPage = () => {
             placeholder="Length (cm)"
             className="input input-bordered"
             value={length}
-            onChange={(e) => setLength(Number(e.target.value))}
+            onChange={(e) => setLength(e.target.value)}
             min="0"
             step="0.01"
           />
@@ -268,7 +334,7 @@ const BookingPage = () => {
             placeholder="Width (cm)"
             className="input input-bordered"
             value={width}
-            onChange={(e) => setWidth(Number(e.target.value))}
+            onChange={(e) => setWidth(e.target.value)}
             min="0"
             step="0.01"
           />
@@ -278,7 +344,7 @@ const BookingPage = () => {
             placeholder="Height (cm)"
             className="input input-bordered"
             value={height}
-            onChange={(e) => setHeight(Number(e.target.value))}
+            onChange={(e) => setHeight(e.target.value)}
             min="0"
             step="0.01"
           />
@@ -288,11 +354,7 @@ const BookingPage = () => {
             placeholder="Weight (kg)"
             className="input input-bordered"
             value={weight}
-            onChange={(e) => {
-              const newWeight = Number(e.target.value);
-              setWeight(newWeight);
-              if (!validateWeight()) setWeight("");
-            }}
+            onChange={(e) => setWeight(e.target.value)}
             min="0"
             step="0.01"
           />

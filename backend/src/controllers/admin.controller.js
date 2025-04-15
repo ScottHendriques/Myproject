@@ -65,3 +65,21 @@ export const getAdminRecentShipments = async (req, res) => {
       res.status(500).json({ message: "Server error", error });
     }
   };
+
+  export const getAllBookings = async (req, res) => {
+    try {
+      const bookings = await Booking.find()
+        .populate('user', 'fullname email')
+        .sort({ preferredDate: -1 }); // Sort by preferredDate if it exists, else date
+      // Convert date fields to ISO string for consistency
+      const formattedBookings = bookings.map(booking => ({
+        ...booking._doc,
+        date: booking.date ? new Date(booking.date).toISOString() : null,
+        preferredDate: booking.preferredDate ? new Date(booking.preferredDate).toISOString() : null,
+      }));
+      res.status(200).json(formattedBookings);
+    } catch (error) {
+      console.error('Error fetching all bookings:', error);
+      res.status(500).json({ message: 'Server error', error });
+    }
+  };

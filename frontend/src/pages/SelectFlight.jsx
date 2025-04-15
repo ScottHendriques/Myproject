@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom"; 
+import { useLocation, useNavigate } from "react-router-dom";
 import { Plane } from "lucide-react";
 import { loadStripe } from "@stripe/stripe-js";
 import img101 from "../images/Etihadlogo.png";
@@ -8,13 +8,13 @@ const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY);
 
 const SelectFlight = () => {
   const location = useLocation();
-  const navigate = useNavigate(); 
+  const navigate = useNavigate();
   const bookingData = location.state?.bookingData;
   const [flights, setFlights] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [paymentLoading, setPaymentLoading] = useState(false);
-  
+
   const calculatePrice = (basePrice, timezone, weight) => {
     let price = basePrice;
 
@@ -37,17 +37,17 @@ const SelectFlight = () => {
 
   const applyPromoDiscount = (price, promoCode) => {
     const validPromoCodes = {
-      "CARGO10": 0.10, 
-      "CARGO20": 0.20, 
-      "FREESHIP": 0.30 
+      CARGO10: 0.10,
+      CARGO20: 0.20,
+      FREESHIP: 0.30,
     };
-  
+
     if (promoCode && validPromoCodes[promoCode]) {
       const discountRate = validPromoCodes[promoCode];
       const discountedPrice = price - price * discountRate;
       return discountedPrice;
     }
-  
+
     return price;
   };
 
@@ -58,7 +58,10 @@ const SelectFlight = () => {
         if (!API_KEY) {
           throw new Error("API Key is missing");
         }
-        const bookingDate = bookingData?.shippingDate;
+        const bookingDate = bookingData?.apiDate; // Use apiDate for API call
+        if (!bookingDate) {
+          throw new Error("API date is missing");
+        }
         const url = `https://api.aviationstack.com/v1/flights?access_key=${API_KEY}&dep_iata=${bookingData?.shippingFrom}&arr_iata=${bookingData?.shippingTo}&limit=10`;
 
         const response = await fetch(url);
@@ -81,7 +84,12 @@ const SelectFlight = () => {
       }
     };
 
-    fetchFlights();
+    if (bookingData) {
+      fetchFlights();
+    } else {
+      setLoading(false);
+      setError("No booking data provided.");
+    }
   }, [bookingData]);
 
   const handlePayment = (price, flightId) => {
@@ -105,7 +113,9 @@ const SelectFlight = () => {
           <h2 className="text-xl font-bold">
             {bookingData.shippingFrom} → {bookingData.shippingTo}
           </h2>
-          <p className="text-sm text-gray-600">{bookingData.shippingDate}</p>
+          <p className="text-sm text-gray-600">
+            {bookingData.preferredShippingDate}
+          </p>
           <p className="font-semibold">
             {bookingData.item} ({bookingData.pieces} pieces,{" "}
             {bookingData.totalWeight} kg)
@@ -131,7 +141,10 @@ const SelectFlight = () => {
             bookingData.totalWeight
           );
 
-          const finalPrice = applyPromoDiscount(adjustedPrice, bookingData.promoCode);
+          const finalPrice = applyPromoDiscount(
+            adjustedPrice,
+            bookingData.promoCode
+          );
 
           return (
             <div
@@ -140,11 +153,7 @@ const SelectFlight = () => {
             >
               {/* Airline Section */}
               <div className="flex items-center space-x-4">
-                <img
-                  src={img101}
-                  alt="Airline Logo"
-                  className="w-12 h-12"
-                />
+                <img src={img101} alt="Airline Logo" className="w-12 h-12" />
                 <div>
                   <h3 className="font-bold text-lg">
                     {flight.airline?.name || "Unknown Airline"}

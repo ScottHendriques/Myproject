@@ -28,6 +28,19 @@ const DashboardAdmin = () => {
   const [feedbackError, setFeedbackError] = useState(null);
   const navigate = useNavigate();
 
+  const parseDate = (dateStr) => {
+    if (!dateStr) return 'N/A';
+    const date = new Date(dateStr);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // Reset time to compare only dates
+    return isNaN(date) ? 'Invalid Date' : date < today ? 'Confirmed Delivery' : date.toLocaleDateString();
+  };
+  
+  const formatStatus = (status) => {
+    if (status?.toLowerCase() === 'confirmed') return 'Payment Confirmed';
+    return status || 'Pending';
+  };
+
   useEffect(() => {
     if (!authUser || !authUser._id) {
       toast.error('Please log in to view the dashboard');
@@ -39,7 +52,7 @@ const DashboardAdmin = () => {
       toast.error('You do not have permission to access this page');
       navigate('/');
       return;
-  }
+    }
 
     const fetchRecentShipments = async () => {
       setLoadingShipments(true);
@@ -224,27 +237,6 @@ const DashboardAdmin = () => {
           </div>
         </div>
 
-        {/* Second Row: Quick Actions Only */}
-        <div className="grid gap-6 grid-cols-1 md:grid-cols-1">
-          <div className="bg-base-200 rounded-lg p-4 max-w-md mx-auto">
-            <h3 className="text-lg font-medium text-base-content mb-3">Quick Actions</h3>
-            <div className="space-y-3">
-              <button
-                className="btn btn-primary btn-sm w-full flex items-center justify-center gap-2"
-                onClick={() => navigate('/admin/users')}
-              >
-                <Users size={16} /> Manage Users
-              </button>
-              <button
-                className="btn btn-primary btn-sm w-full flex items-center justify-center gap-2"
-                onClick={() => navigate('/admin/customer-service')}
-              >
-                <MessageCircle size={16} /> Customer Service
-              </button>
-            </div>
-          </div>
-        </div>
-
         {/* Third Row: Total Shipments, Top Cargo Types, Top Routes */}
         <div className="grid gap-6 grid-cols-1 md:grid-cols-3">
           <div className="bg-base-200 rounded-lg p-4">
@@ -321,7 +313,7 @@ const DashboardAdmin = () => {
               <h3 className="text-lg font-medium text-base-content">Recent Shipments</h3>
               <button
                 className="btn btn-primary btn-sm"
-                onClick={() => navigate('/admin/shipments')}
+                onClick={() => navigate('/admin/ReviewShipments')}
               >
                 Manage
               </button>
@@ -344,7 +336,7 @@ const DashboardAdmin = () => {
                       </p>
                       <p className="text-sm text-base-content/70">
                         <strong>Date:</strong>{' '}
-                        {new Date(shipment.date).toLocaleDateString()}
+                        {new Date(shipment.preferredShippingDate).toLocaleDateString()}
                       </p>
                       <p className="text-sm text-base-content/70">
                         <strong>Weight:</strong> {shipment.totalWeight} kg
